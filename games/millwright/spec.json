@@ -1,0 +1,33 @@
+{
+  "slug": "millwright",
+  "name": "Millwright",
+  "tagline": "Bolt it in, run it hot, or stash it for a better roll.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 2,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "open-drafting",
+    "tech-trees-tech-tracks",
+    "dice-rolling",
+    "end-game-bonuses",
+    "engine-building"
+  ],
+  "core_loop": "Roll the pressure die, take one card from the shared yard (or use your stockroom), then fit it as an ascending upgrade, run it for grade x mechanism level, or reserve it face down.",
+  "win_condition": "Highest score after the closing round, including 4 bonus points per mechanism fitted to level 4.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
