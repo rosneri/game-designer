@@ -1,0 +1,171 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/three/idea01/workspace/games/ossuary",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 27.18,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "ossuary",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 36,
+          "max_turns": 36,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 36,
+          "max_turns": 36,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 36,
+          "max_turns": 36,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.311
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.487,
+            0.513
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.357,
+            0.3,
+            0.343
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.227,
+            0.24,
+            0.277,
+            0.257
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.618
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.733,
+          "dominance": 0.467,
+          "mcts_win_rate": 0.167
+        },
+        "p3": {
+          "greedy_win_rate": 0.717,
+          "dominance": 0.575
+        },
+        "p4": {
+          "greedy_win_rate": 0.692,
+          "dominance": 0.589
+        },
+        "skill_dominance": 0.544
+      },
+      "reason": "",
+      "seconds": 25.228
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 35,
+        "forced_share": 0.0,
+        "turns_sampled": 3240
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.613,
+        "p2": {
+          "mean_turns": 36,
+          "est_minutes": 22.1
+        },
+        "p3": {
+          "mean_turns": 36,
+          "est_minutes": 22.1
+        },
+        "p4": {
+          "mean_turns": 36,
+          "est_minutes": 22.1
+        },
+        "est_minutes_range": [
+          22.1,
+          22.1
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:hand-management",
+          "mech:memory",
+          "mech:set-collection",
+          "mech:take-that",
+          "order:clockwise"
+        ],
+        "nearest": "lamplighter",
+        "similarity": 0.75
+      },
+      "reason": "",
+      "seconds": 0.016
+    }
+  ]
+}

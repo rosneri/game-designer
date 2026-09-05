@@ -1,0 +1,32 @@
+{
+  "slug": "ossuary",
+  "name": "Ossuary",
+  "tagline": "Five face-down niches, one key per turn, and a memory full of other people's lies.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "memory",
+    "hand-management",
+    "set-collection",
+    "take-that"
+  ],
+  "core_loop": "On your turn press a key card against a niche to match its rank or suit, bury a card of your own on top of a niche, or peek at one secretly.",
+  "win_condition": "Highest total value of relics in your trophy pile after the fixed number of rounds.",
+  "est_minutes": [
+    15,
+    25
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
