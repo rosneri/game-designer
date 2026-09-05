@@ -1,0 +1,168 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea05/workspace/games/bindle",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 7.54,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "bindle",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 2,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 68.0,
+          "max_turns": 72,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 70.2,
+          "max_turns": 77,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 69.5,
+          "max_turns": 74,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.179
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.465,
+            0.535
+          ],
+          "draw_rate": 0.09
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.337,
+            0.342,
+            0.322
+          ],
+          "draw_rate": 0.12
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.27,
+            0.234,
+            0.239,
+            0.256
+          ],
+          "draw_rate": 0.203
+        }
+      },
+      "reason": "",
+      "seconds": 1.007
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 1.0,
+          "mcts_win_rate": 1.0
+        },
+        "p3": {
+          "greedy_win_rate": 0.871
+        },
+        "p4": {
+          "greedy_win_rate": 0.785
+        }
+      },
+      "reason": "",
+      "seconds": 6.346
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 8.81,
+        "forced_share": 0.0,
+        "turns_sampled": 6229
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.414,
+        "p2": {
+          "mean_turns": 68.0,
+          "est_minutes": 28.1
+        },
+        "p3": {
+          "mean_turns": 70.2,
+          "est_minutes": 29.1
+        },
+        "p4": {
+          "mean_turns": 69.5,
+          "est_minutes": 28.8
+        },
+        "est_minutes_range": [
+          28.1,
+          29.1
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:2",
+          "mech:dice-rolling",
+          "mech:hand-management",
+          "mech:pattern-building",
+          "mech:take-that",
+          "mech:trading",
+          "order:clockwise"
+        ],
+        "nearest": "closing-bell",
+        "similarity": 0.533
+      },
+      "reason": "",
+      "seconds": 0.004
+    }
+  ]
+}

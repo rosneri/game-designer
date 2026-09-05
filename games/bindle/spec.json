@@ -1,0 +1,33 @@
+{
+  "slug": "bindle",
+  "name": "Bindle",
+  "tagline": "Push a card across the table and take what comes back.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 2,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trading",
+    "hand-management",
+    "pattern-building",
+    "take-that",
+    "dice-rolling"
+  ],
+  "core_loop": "On your turn lay a rank-adjacent card on your own stall for safe points, or hawk a card onto a rival's stall and take a blind card back from their hand while a customs die may expose it.",
+  "win_condition": "Highest score when the draw pile runs out and the round is finished; chains pay their length (doubled on suit match) and each joker left in hand costs 5.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
