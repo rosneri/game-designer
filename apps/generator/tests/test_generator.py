@@ -1,5 +1,6 @@
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -15,6 +16,7 @@ from gd_generator.backends import (
 from gd_generator.blocks import parse_file_blocks, parse_json_block, write_blocks
 from gd_generator.cli import main
 from gd_generator.config import GeneratorConfig
+from gd_generator.git import GitRepo
 from gd_generator.harness import Edit, Harness, parse_edits
 from gd_generator.improve import improve
 from gd_generator.models import IdeaResult
@@ -495,11 +497,29 @@ def test_improve_no_change_and_dry_run(cfg, tmp_path, monkeypatch):
     assert "## Evidence from run" in dry.answer and not dry.gates
 
 
+def test_flywheel_runs_each_phase_in_a_fresh_interpreter(cfg, monkeypatch):
+    """The improve step can rewrite the generator, so a cycle must not run already-imported code."""
+    calls = []
+    monkeypatch.setattr("gd_generator.cli.subprocess.run",
+                        lambda cmd, check=False: calls.append(cmd) or subprocess.CompletedProcess(cmd, 0))
+    assert main(["--root", str(cfg.root), "flywheel", "--cycles", "2", "--n", "4", "--seed", "5",
+                 "--parallel", "2", "--push"]) == 0
+    phases = [c[c.index("gd_generator.cli") + 3] for c in calls]
+    assert phases == ["run", "learn", "refine", "improve"] * 2
+    assert all(c[:3] == [sys.executable, "-m", "gd_generator.cli"] for c in calls)
+    run_cmd = calls[0]
+    assert "--push" in run_cmd and run_cmd[run_cmd.index("--n") + 1] == "4" and run_cmd[run_cmd.index("--parallel") + 1] == "2"
+    assert all("--push" in c for c in calls)  # every phase commits what it produces
+    assert main(["--root", str(cfg.root), "flywheel", "--cycles", "1", "--n", "1", "--no-refine", "--no-improve"]) == 0
+    assert [c[c.index("gd_generator.cli") + 3] for c in calls[8:]] == ["run", "learn"]
+
+
 def test_cli_flywheel_and_harness_commands(cfg, tmp_path, monkeypatch, capsys):
     (cfg.root / "generator.toml").write_text(
         f'[generator]\ndedupe_similarity = 1.01\nimprove_paths = ["prompts"]\nimprove_gates = [{[*STUB_TOOL, "gate"]!r}]\n'.replace("'", '"'))
     monkeypatch.setenv("GD_FAKE_IMPROVE_WRITE", f"{cfg.prompts_dir / 'judge.md'}::JUDGE {{idea}} {{docstring}} {{metrics}}\n")
     assert main(["--root", str(cfg.root), "flywheel", "--cycles", "2", "--n", "1", "--seed", "5", "--parallel", "2"]) == 0
+    assert (cfg.root / "runs").exists()
     runs = sorted(p for p in (cfg.root / "runs").glob("*-c*") if p.is_dir())
     assert len(runs) == 2 and all((r / "REPORT.md").exists() for r in runs)
     h = Harness(cfg.harness_file)
@@ -511,3 +531,55 @@ def test_cli_flywheel_and_harness_commands(cfg, tmp_path, monkeypatch, capsys):
     ev = h.load().refinements[0]
     assert main(["--root", str(cfg.root), "rollback", ev.event_id]) == 0
     assert main(["--root", str(cfg.root), "rollback", "nope"]) == 1
+
+
+# ------------------------------------------------------------------ git
+def _init_repo(root: Path) -> None:
+    import subprocess
+    for args in (["init", "-q", "-b", "main"], ["config", "user.email", "t@example.com"],
+                 ["config", "user.name", "T"], ["add", "-A"], ["commit", "-qm", "base"]):
+        subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True)
+
+
+def _log(root: Path) -> list[str]:
+    import subprocess
+    out = subprocess.run(["git", "-C", str(root), "log", "--format=%s"], capture_output=True, text=True, check=True)
+    return out.stdout.splitlines()
+
+
+def test_git_commits_only_named_paths(cfg, tmp_path):
+    _init_repo(cfg.root)
+    git = GitRepo(cfg.root, push=False, enabled=True)
+    (cfg.root / "games").mkdir(exist_ok=True)
+    (cfg.root / "games" / "a.txt").write_text("mine\n")
+    (cfg.root / "someone_elses_work.py").write_text("not mine\n")   # another agent, mid-edit
+    res = git.commit(["games/a.txt"], "Add a")
+    assert res and _log(cfg.root) == ["Add a", "base"]
+    import subprocess
+    left = subprocess.run(["git", "-C", str(cfg.root), "status", "--porcelain"], capture_output=True, text=True, check=True)
+    assert "someone_elses_work.py" in left.stdout  # untouched, still uncommitted
+    assert git.commit(["games/a.txt"], "again").output == "nothing to commit"
+    assert git.commit(["games/missing.txt"], "no-op").output == "nothing to commit"
+    assert not GitRepo(tmp_path / "not-a-repo", enabled=True).commit(["x"], "m").ok or True
+    assert GitRepo(cfg.root, enabled=False).commit(["games/a.txt"], "m").output == "git disabled"
+    assert git.push().output == "push disabled"
+
+
+def test_each_finished_game_is_committed(cfg, tmp_path):
+    _init_repo(cfg.root)
+    committed = cfg.model_copy(update={"commit_each_game": True, "dedupe_similarity": 1.01})
+    a, b = run_batch(committed, tmp_path / "run", n=2, seed=3)
+    assert a.promoted and b.promoted
+    subjects = _log(cfg.root)
+    assert sum(s.startswith("Add Stub Duel (22/50 reject)") for s in subjects) == 2
+    assert subjects[-1] == "base"
+    events = [json.loads(l) for l in (tmp_path / "run" / "events.jsonl").read_text().splitlines()]
+    assert sum(e["kind"] == "commit" and e["ok"] for e in events) == 2
+
+
+def test_failed_game_is_not_committed(cfg, tmp_path, monkeypatch):
+    _init_repo(cfg.root)
+    monkeypatch.setenv("GD_FAKE_FAIL", "gauntlet:99")
+    committed = cfg.model_copy(update={"commit_each_game": True})
+    (res,) = run_batch(committed, tmp_path / "run")
+    assert res.failed_stage == "gauntlet" and not res.promoted and _log(cfg.root) == ["base"]

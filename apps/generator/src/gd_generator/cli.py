@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 import time
 from pathlib import Path
 
 from . import lessons
 from .config import GeneratorConfig
+from .git import GitRepo
 from .harness import Harness
 from .improve import improve
 from .models import IdeaResult
@@ -25,6 +27,10 @@ def _cfg(args) -> GeneratorConfig:
         over["promote"] = False
     if getattr(args, "no_live_lessons", False):
         over["live_lessons"] = False
+    if getattr(args, "commit", False):
+        over["commit_each_game"] = True
+    if getattr(args, "push", False):
+        over["commit_each_game"], over["push_commits"] = True, True
     return GeneratorConfig.load(args.root, getattr(args, "config", None), **over)
 
 
@@ -58,21 +64,32 @@ def cmd_resume(args) -> int:
     return 0 if any(r.passed for r in results) else 1
 
 
+def _git(cfg: GeneratorConfig) -> GitRepo:
+    return GitRepo(cfg.root, cfg.git_remote, cfg.git_branch, push=cfg.push_commits, enabled=cfg.commit_each_game)
+
+
 def cmd_refine(args) -> int:
     cfg = _cfg(args)
-    ev, raw = refine(cfg, Path(args.run_dir), instructions=args.instructions or "")
+    run_dir = Path(args.run_dir)
+    ev, raw = refine(cfg, run_dir, trigger=args.trigger, instructions=args.instructions or "")
     if ev is None:
         print(f"no ledger edits: {raw[:400]}", file=sys.stderr)
         return 1
     for e in ev.edits:
         print(f"{e.op:6} {e.id} [{e.kind}] {e.text[:100]}")
     print(f"event {ev.event_id} (undo with: generator rollback {ev.event_id})", file=sys.stderr)
+    summary = "; ".join(f"{e.op} {e.id}" for e in ev.edits)
+    res = _git(cfg).commit_and_push(["prompts/harness_state.json"],
+                                    f"Refine ledger after {run_dir.name} ({len(ev.edits)} edits)\n\n{summary}\n\n"
+                                    f"Undo with: generator rollback {ev.event_id}")
+    print(f"commit: {res.output[-120:]}", file=sys.stderr)
     return 0
 
 
 def cmd_improve(args) -> int:
     cfg = _cfg(args)
-    res = improve(cfg, Path(args.run_dir), instructions=args.instructions or "", dry_run=args.dry_run)
+    run_dir = Path(args.run_dir)
+    res = improve(cfg, run_dir, instructions=args.instructions or "", dry_run=args.dry_run)
     if args.dry_run:
         print(res.answer)
         return 0
@@ -82,36 +99,56 @@ def cmd_improve(args) -> int:
     print(f"{verb}: {', '.join(res.changed) or '-'}", file=sys.stderr)
     if res.error and not res.applied:
         print(res.error[-1500:], file=sys.stderr)
+    if res.applied and res.changed:
+        why = next((l for l in res.answer.strip().splitlines() if l.strip() and not l.startswith("#")), "")[:200]
+        out = _git(cfg).commit_and_push(res.changed, f"Self-improve after {run_dir.name}\n\n{why}\n\n"
+                                                     f"Gates passed: {len(res.gates)}.")
+        print(f"commit: {out.output[-120:]}", file=sys.stderr)
     return 0 if res.applied else 1
 
 
 def cmd_learn(args) -> int:
     cfg = _cfg(args)
-    n = lessons.learn(Path(args.run_dir), cfg.prompts_dir / "LESSONS.md")
+    run_dir = Path(args.run_dir)
+    n = lessons.learn(run_dir, cfg.prompts_dir / "LESSONS.md")
     print(f"added {n} lessons to {cfg.prompts_dir / 'LESSONS.md'}")
+    _git(cfg).commit_and_push(["prompts/LESSONS.md"], f"Fold {n} lessons from {run_dir.name} into LESSONS.md")
     return 0
+
+
+def _phase(args, *argv: str) -> int:
+    """Run one flywheel phase in a fresh interpreter.
+
+    The improve step may rewrite the generator itself, and an already-imported module would not notice. A
+    subprocess per phase means every cycle runs the code as it stands on disk right now.
+    """
+    cmd = [sys.executable, "-m", "gd_generator.cli", "--root", str(args.root)]
+    if getattr(args, "config", None):
+        cmd += ["--config", str(args.config)]
+    cmd += list(argv)
+    print(f"$ {' '.join(cmd[3:])}", file=sys.stderr)
+    return subprocess.run(cmd, check=False).returncode
 
 
 def cmd_flywheel(args) -> int:
     """run -> learn -> refine -> improve -> repeat. Each cycle starts from the previous cycle's harness."""
-    cfg = _cfg(args)
     stop = time.monotonic() + args.max_hours * 3600 if args.max_hours else None
+    git_flags = ["--push"] if args.push else (["--commit"] if args.commit else [])
+    batch_flags = [*git_flags, "--parallel", str(args.parallel or 3)]
+    if args.mode:
+        batch_flags += ["--mode", args.mode]
+    if args.no_live_lessons:
+        batch_flags.append("--no-live-lessons")
     for cycle in range(1, args.cycles + 1):
+        cfg = _cfg(args)  # reload: an earlier cycle may have rewritten generator.toml
         run_dir = cfg.runs_dir / f"{time.strftime('%Y%m%d-%H%M%S')}-c{cycle}"
         print(f"\n=== cycle {cycle}/{args.cycles}: generating {args.n} games ===", file=sys.stderr)
-        cfg = _cfg(args)  # reload: an earlier cycle may have rewritten generator.toml or the code
-        results = _batch(cfg, run_dir, args.n, args.seed + cycle, resume=False)
-        passed = sum(r.passed for r in results)
-        best = max((r.judge.total for r in results if r.judge), default=None)
-        print(f"cycle {cycle}: {passed}/{len(results)} passed, best judge {best}", file=sys.stderr)
-        lessons.learn(run_dir, cfg.prompts_dir / "LESSONS.md")
+        _phase(args, "run", "--n", str(args.n), "--seed", str(args.seed + cycle), "--run-dir", str(run_dir), *batch_flags)
+        _phase(args, "learn", str(run_dir), *git_flags)
         if not args.no_refine:
-            ev, _ = refine(cfg, run_dir, trigger="auto")
-            print(f"refine: {len(ev.edits) if ev else 0} ledger edits", file=sys.stderr)
+            _phase(args, "refine", str(run_dir), *git_flags)
         if not args.no_improve:
-            res = improve(cfg, run_dir)
-            verb = "applied" if res.applied else ("reverted" if res.reverted else "no change")
-            print(f"improve: {verb} {', '.join(res.changed[:6]) or '-'}", file=sys.stderr)
+            _phase(args, "improve", str(run_dir), *git_flags)
         if stop and time.monotonic() > stop:
             print(f"time budget reached after cycle {cycle}", file=sys.stderr)
             break
@@ -161,12 +198,17 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument("--max-fix", type=int, default=None, dest="max_fix")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
+    def _add_git_flags(p):
+        p.add_argument("--commit", action="store_true", help="commit what this produces")
+        p.add_argument("--push", action="store_true", help="commit and push it")
+
     def add_batch_flags(p):
         p.add_argument("--parallel", type=int, default=None, help="concurrent ideas (default 3)")
         p.add_argument("--mode", choices=["rolling", "phased"], default=None,
                        help="rolling: each idea learns from games already finished (default); phased: all ideas first")
         p.add_argument("--no-promote", action="store_true", help="keep survivors in the run dir only")
         p.add_argument("--no-live-lessons", action="store_true", help="do not feed this run's lessons back mid-run")
+        _add_git_flags(p)
 
     p = sub.add_parser("run", help="generate N games")
     p.add_argument("--n", type=int, default=1)
@@ -193,16 +235,20 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("refine", help="review a run and update the learned-rules ledger")
     p.add_argument("run_dir")
     p.add_argument("--instructions", default=None)
+    p.add_argument("--trigger", choices=["manual", "auto"], default="manual")
+    _add_git_flags(p)
     p.set_defaults(fn=cmd_refine)
 
     p = sub.add_parser("improve", help="let the harness patch its own code, behind gates")
     p.add_argument("run_dir")
     p.add_argument("--instructions", default=None)
     p.add_argument("--dry-run", action="store_true", help="print the prompt without calling the model")
+    _add_git_flags(p)
     p.set_defaults(fn=cmd_improve)
 
     p = sub.add_parser("learn", help="fold a finished run's lessons into prompts/LESSONS.md")
     p.add_argument("run_dir")
+    _add_git_flags(p)
     p.set_defaults(fn=cmd_learn)
 
     p = sub.add_parser("rollback", help="undo one refinement event")

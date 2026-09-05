@@ -63,6 +63,20 @@ another agent or editor saves into `prompts/`, `libs/` or `apps/` while the step
 back with it. Batches are safe to run alongside other work (they only write `runs/` and, at the very end, one
 game directory); `improve` is not.
 
+Each cycle runs its four phases as fresh interpreters, so an improvement the harness makes to its own code is
+live for the very next cycle rather than waiting for a restart.
+
+## Committing as it goes
+
+`--commit` commits each finished game the moment it is promoted, and each phase's own output (`LESSONS.md`
+after learn, `harness_state.json` after refine, the touched files after improve). `--push` does the same and
+pushes. Only named paths are ever staged, so work in flight elsewhere in the repository is never swept into a
+commit, and git calls are serialized and retried when another process holds `index.lock`.
+
+```bash
+generator flywheel --cycles 10 --n 10 --parallel 3 --push
+```
+
 ## Commands
 
 ```bash

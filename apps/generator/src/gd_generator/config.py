@@ -64,6 +64,11 @@ class GeneratorConfig(BaseModel):
                                                                    ["uv", "run", "ruff", "check", "libs", "apps"]])
     gate_timeout: int = 1800
     max_refine_edits: int = 8
+    # git: commit each finished game (and each flywheel step) as it lands
+    commit_each_game: bool = False
+    push_commits: bool = False
+    git_remote: str = "origin"
+    git_branch: str = ""            # empty: whatever branch is checked out
     # batch behaviour
     dedupe_similarity: float = 0.75  # cull a brief whose mechanic tags overlap this much with an earlier one
     promote: bool = True             # copy survivors into the catalog (games/) at the end of the run
