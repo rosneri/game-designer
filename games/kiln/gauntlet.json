@@ -1,0 +1,172 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/three/idea02/workspace/games/kiln",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 21.92,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "kiln",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 2
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 37.0,
+          "max_turns": 41,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 36.6,
+          "max_turns": 42,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 42.0,
+          "max_turns": 47,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.823
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.53,
+            0.47
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.357,
+            0.347,
+            0.297
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.25,
+            0.23,
+            0.22,
+            0.3
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 4.203
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.892,
+          "dominance": 0.783,
+          "mcts_win_rate": 0.833
+        },
+        "p3": {
+          "greedy_win_rate": 0.717,
+          "dominance": 0.575
+        },
+        "p4": {
+          "greedy_win_rate": 0.675,
+          "dominance": 0.567
+        },
+        "skill_dominance": 0.642
+      },
+      "reason": "",
+      "seconds": 16.887
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 9.29,
+        "forced_share": 0.014,
+        "turns_sampled": 3468
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.422,
+        "p2": {
+          "mean_turns": 37.0,
+          "est_minutes": 15.6
+        },
+        "p3": {
+          "mean_turns": 36.6,
+          "est_minutes": 15.4
+        },
+        "p4": {
+          "mean_turns": 42.0,
+          "est_minutes": 17.7
+        },
+        "est_minutes_range": [
+          15.4,
+          17.7
+        ]
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:2",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:dice-rolling",
+          "mech:end-game-bonuses",
+          "mech:hand-management",
+          "mech:re-rolling-and-locking",
+          "mech:take-that",
+          "order:clockwise"
+        ],
+        "nearest": "furlong",
+        "similarity": 0.571
+      },
+      "reason": "",
+      "seconds": 0.006
+    }
+  ]
+}

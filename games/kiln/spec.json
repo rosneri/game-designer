@@ -1,0 +1,33 @@
+{
+  "slug": "kiln",
+  "name": "Kiln",
+  "tagline": "Two dice rotate the rank wheel; cover your ware to score it before a rival poaches it.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 2,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "dice-rolling",
+    "hand-management",
+    "take-that",
+    "re-rolling-and-locking",
+    "end-game-bonuses"
+  ],
+  "core_loop": "Roll two dice to set the heat that rotates every card's fired value; on your turn optionally discard a card to re-roll one die, then fire a hotter card over your own ware (scoring the covered card), poach an opponent's exposed ware, rake your ware back, or gather cards.",
+  "win_condition": "Highest total of printed ranks in your cabinet plus 5 per suit you hold strictly the most of, when a cabinet hits the threshold, the deck runs out, or the round cap is reached.",
+  "est_minutes": [
+    10,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
