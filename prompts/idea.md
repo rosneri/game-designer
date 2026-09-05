@@ -14,11 +14,16 @@ Hard constraints:
 
 Seed direction to explore (bend it, but keep it): {direction}
 
+{taxonomy}
+
 Existing games (avoid these names and near-identical mechanics):
 {existing}
 
 Lessons from earlier runs (respect them):
 {lessons}
+
+Harness notes (learned rules; treat as hard guidance):
+{harness}
 
 Answer in exactly this Markdown structure:
 
@@ -27,7 +32,7 @@ slug: <lowercase-kebab, 3-40 chars>
 players: <min>-<max>
 jokers: <0|1|2>
 dice: <0|1|2>
-mechanics: <comma separated tags, e.g. trick-taking, bidding, push-your-luck, set-collection, shedding, drafting, bluffing>
+mechanics: <comma separated tags, 2-5 of them, drawn from the Mechanics/Categories lists above (kebab-case, e.g. trick-taking, set-collection); coin a new tag only if nothing above fits>
 hidden_information: <true|false>
 turn_order: <clockwise|simultaneous|variable>
 

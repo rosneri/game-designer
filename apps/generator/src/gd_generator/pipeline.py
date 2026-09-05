@@ -1,431 +1,208 @@
-"""Per-idea pipeline: idea -> code -> validate -> tests -> gauntlet -> judge -> lessons."""
+"""Batch orchestration.
+
+Default mode is **rolling**: a worker pool runs each idea end to end (idea -> code -> validate -> tests ->
+gauntlet -> judge -> promote) and publishes its lessons the moment it finishes, so ideas that start later see
+what earlier games taught. ``phased`` keeps the older two-phase behaviour (all ideas first, then all builds).
+
+Every run works against a frozen snapshot of prompts and catalog, and every idea builds in its own workspace;
+the only shared mutable state is the registry (slugs/dedupe) and the lesson board.
+"""
 from __future__ import annotations
 
 import json
-import os
-import re
-import shlex
-import subprocess
-import threading
 import time
-from dataclasses import dataclass, field
+from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime
 from pathlib import Path
-from random import Random
 from typing import Any
 
-from . import llm
-from .blocks import parse_file_blocks, parse_json_block, write_blocks
-
-DIRECTIONS = [
-    "trick-taking with a twist on following suit", "push-your-luck drawing from a shared deck",
-    "simultaneous secret bidding with cards as currency", "set collection with a rotating market row",
-    "shedding race where jokers change the rules", "dice modify card values each round",
-    "climbing game with ranked combinations", "bluffing about hidden card values",
-    "area control on a grid of face-down cards", "auction where you pay with cards from hand",
-    "memory of face-down cards with peeking actions", "cooperative-competitive: shared goal, one traitor",
-    "engine building with cards as permanent upgrades", "drafting hands then scoring patterns",
-    "racing along a track built from cards", "hand management with a strict card economy",
-    "one die decides the trump suit each trick", "stock market of suits with rising and falling values",
-    "dungeon crawl where cards are monsters and loot", "tableau building with adjacency bonuses",
-    "negotiation-free trading via blind swaps", "capture game using number sums and products",
-]
-
-_lock = threading.Lock()
-_reserved: set[str] = set()
+from . import lessons as lessons_mod
+from .backends import LLMClient
+from .config import GeneratorConfig
+from .events import EventLog
+from .harness import Harness
+from .models import IdeaBrief, IdeaResult, RunManifest
+from .prompts import Prompts, choose_direction
+from .registry import Duplicate, LessonBoard, Registry, jaccard
+from .steps import BUILD_STEPS, IdeaContext, StepFailed, infra_flag, step_idea, step_promote
+from .workspace import Snapshot, Workspace, git_sha
 
 
-@dataclass
-class Config:
-    root: Path = field(default_factory=lambda: Path.cwd())
-    max_fix_rounds: int = 2
-    runner_cmd: list[str] = field(default_factory=lambda: shlex.split(os.environ.get("GD_RUNNER_CMD", "uv run runner")))
-    pytest_cmd: list[str] = field(default_factory=lambda: shlex.split(os.environ.get("GD_PYTEST_CMD", "uv run pytest")))
-    tool_timeout: int = 600
-    dry_run: bool = False
+class Batch:
+    def __init__(self, cfg: GeneratorConfig, run_dir: Path, n: int, seed: int, resume: bool = False):
+        self.cfg, self.run_dir, self.n, self.seed, self.resume = cfg, Path(run_dir), n, seed, resume
+        self.run_dir.mkdir(parents=True, exist_ok=True)
+        self.snap = Snapshot.take(cfg, self.run_dir)
+        self.harness = Harness(cfg.harness_file)
+        self.events = EventLog(self.run_dir / "events.jsonl")
+        self.manifest = self._manifest()
+        self.board = LessonBoard(self.snap.lesson_bullets(), live=cfg.live_lessons)
+        self.registry = Registry(self.snap.catalog(), self._taken_slugs(), cfg.dedupe_similarity, self.n)
+        self.prompts = Prompts(self.snap, cfg.root, cfg.reference_game, lessons=self.board.text,
+                               harness=self.harness.text_for, peers=self.registry.briefs)
+        self.llm = LLMClient(cfg)
+        self.results: dict[int, IdeaResult] = {}
+        self._used_directions: set[str] = set()
 
-    @property
-    def prompts(self) -> Path:
-        return self.root / "prompts"
+    # ---------------------------------------------------------------- setup
+    def _taken_slugs(self) -> set[str]:
+        live = {p.name for p in self.cfg.catalog_dir.glob("*") if p.is_dir()} if self.cfg.catalog_dir.exists() else set()
+        return self.snap.catalog_slugs() | live
 
-    @property
-    def games(self) -> Path:
-        return self.root / "games"
+    def _manifest(self) -> RunManifest:
+        p = self.run_dir / "manifest.json"
+        if p.exists() and self.resume:
+            m = RunManifest.model_validate_json(p.read_text())
+            self.n, self.seed = m.n, m.seed
+            return m
+        hashes = self.snap.prompt_hashes()
+        m = RunManifest(run_id=self.run_dir.name, created=datetime.now(UTC).isoformat(timespec="seconds"), n=self.n,
+                        seed=self.seed, config=self.cfg.manifest_dict(), prompt_hashes=hashes,
+                        lessons_hash=hashes.get("LESSONS.md", ""), catalog=sorted(self.snap.catalog_slugs()),
+                        git_sha=git_sha(self.cfg.root), harness_entries=len(self.harness.load().entries))
+        p.write_text(m.model_dump_json(indent=1))
+        return m
 
+    def idea_dir(self, idx: int) -> Path:
+        d = self.run_dir / f"idea{idx:02d}"
+        d.mkdir(exist_ok=True)
+        return d
 
-# ---------------------------------------------------------------- prompts
-def render(cfg: Config, name: str, **kw: Any) -> str:
-    return (cfg.prompts / f"{name}.md").read_text().format_map(kw)
-
-
-def lessons_text(cfg: Config) -> str:
-    p = cfg.prompts / "LESSONS.md"
-    lines = [l for l in p.read_text().splitlines() if l.startswith("- ")] if p.exists() else []
-    return "\n".join(lines[-40:]) or "- (none yet)"
-
-
-def existing_games(games_dir: Path) -> list[dict]:
-    out = []
-    for sp in sorted(games_dir.glob("*/spec.json")):
-        try:
-            d = json.loads(sp.read_text())
-            out.append({"slug": sp.parent.name, "name": d.get("name", ""), "mechanics": d.get("mechanics", [])})
-        except (OSError, json.JSONDecodeError):
-            out.append({"slug": sp.parent.name, "name": "", "mechanics": []})
-    return out
-
-
-def existing_text(games_dir: Path) -> str:
-    rows = [f"- {g['slug']}: {g['name']} [{', '.join(g['mechanics'])}]" for g in existing_games(games_dir)]
-    return "\n".join(rows) or "- (none)"
-
-
-def gamecore_src(cfg: Config, name: str) -> str:
-    return (cfg.root / "libs/gamecore/src/gd_gamecore" / name).read_text()
-
-
-def example_text(cfg: Config) -> str:
-    ref = cfg.games / "reference-war-plus"
-    if not (ref / "rules.py").exists():
-        return ""
-    parts = ["## Example package (games/reference-war-plus)"]
-    for f in ("spec.json", "rules.py"):
-        if (ref / f).exists():
-            lang = "json" if f.endswith("json") else "python"
-            parts.append(f"```{lang} path=games/reference-war-plus/{f}\n{(ref / f).read_text()}\n```")
-    return "\n".join(parts)
-
-
-def idea_prompt(cfg: Config, seed: int) -> str:
-    direction = Random(seed).choice(DIRECTIONS)
-    return render(cfg, "idea", direction=direction, existing=existing_text(cfg.games), lessons=lessons_text(cfg))
-
-
-def code_prompt(cfg: Config, idea: str, slug: str) -> str:
-    return render(cfg, "code", contract=(cfg.prompts / "contract.md").read_text(), game_py=gamecore_src(cfg, "game.py"),
-                  spec_py=gamecore_src(cfg, "spec.py"), example=example_text(cfg), idea=idea, slug=slug)
-
-
-def files_text(gdir: Path, names=("spec.json", "rules.py", "test_rules.py")) -> str:
-    parts = []
-    for n in names:
-        p = gdir / n
-        if p.exists():
-            lang = "json" if n.endswith("json") else "python"
-            parts.append(f"```{lang} path=games/{gdir.name}/{n}\n{p.read_text()}\n```")
-    return "\n".join(parts)
-
-
-def fix_prompt(cfg: Config, slug: str, stage: str, error: str, extra: str = "") -> str:
-    return render(cfg, "fix", contract=(cfg.prompts / "contract.md").read_text(), slug=slug, stage=stage,
-                  error=error[-12000:], files=files_text(cfg.games / slug), extra=extra)
-
-
-# ---------------------------------------------------------------- idea parsing
-_KV = re.compile(r"^(slug|players|jokers|dice|mechanics|hidden_information|turn_order):\s*(.+)$", re.MULTILINE | re.IGNORECASE)
-
-
-def parse_idea(text: str) -> dict:
-    d: dict[str, Any] = {"name": "", "slug": "", "players": (2, 4), "jokers": 0, "dice": 0, "mechanics": []}
-    m = re.search(r"^#\s+(.+)$", text, re.MULTILINE)
-    if m:
-        d["name"] = m.group(1).strip()
-    for k, v in _KV.findall(text):
-        k, v = k.lower(), v.strip().strip("`*")
-        if k == "slug":
-            d["slug"] = slugify(v)
-        elif k == "players":
-            nums = [int(x) for x in re.findall(r"\d", v)]
-            if nums:
-                lo, hi = max(2, min(nums)), min(4, max(nums))
-                d["players"] = (lo, max(lo, hi))
-        elif k in ("jokers", "dice"):
-            nums = re.findall(r"\d", v)
-            d[k] = max(0, min(2, int(nums[0]))) if nums else 0
-        elif k == "mechanics":
-            d[k] = [t.strip().lower() for t in v.split(",") if t.strip()]
-        else:
-            d[k] = v.lower()
-    if not d["slug"]:
-        d["slug"] = slugify(d["name"]) or "untitled"
-    return d
-
-
-def slugify(s: str) -> str:
-    s = re.sub(r"[^a-z0-9-]+", "-", s.lower()).strip("-")
-    s = re.sub(r"-{2,}", "-", s)
-    if not s:
-        return ""
-    if not s[0].isalpha():
-        s = "g-" + s
-    return s[:40].rstrip("-") if len(s) >= 3 else s + "-game"
-
-
-def reset_reservations() -> None:
-    with _lock:
-        _reserved.clear()
-
-
-def reserve_slug(slug: str, games_dir: Path) -> str:
-    """Pick a slug unused on disk and by concurrent workers (append -2, -3, ...)."""
-    with _lock:
-        cand, i = slug, 1
-        while (games_dir / cand).exists() or cand in _reserved:
-            i += 1
-            cand = f"{slug[:37]}-{i}"
-        _reserved.add(cand)
-        return cand
-
-
-# ---------------------------------------------------------------- tools
-@dataclass
-class ToolResult:
-    ok: bool
-    output: str
-    seconds: float
-    data: dict | None = None
-
-
-def run_tool(argv: list[str], cwd: Path, timeout: int) -> ToolResult:
-    t0 = time.monotonic()
-    try:
-        cp = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, check=False, timeout=timeout)
-        out = (cp.stdout + ("\n" + cp.stderr if cp.stderr else "")).strip()
-        return ToolResult(cp.returncode == 0, out, time.monotonic() - t0)
-    except subprocess.TimeoutExpired:
-        return ToolResult(False, f"TIMEOUT after {timeout}s: {' '.join(argv)}", time.monotonic() - t0)
-    except FileNotFoundError as e:
-        return ToolResult(False, f"tool not found: {e}", time.monotonic() - t0)
-
-
-def gauntlet_summary(data: dict | None, output: str) -> str:
-    """Compact text of failing stages from a gauntlet JSON (schema tolerant)."""
-    if not data:
-        return output[-6000:]
-    stages = data.get("stages", data)
-    lines = []
-    items = stages.items() if isinstance(stages, dict) else enumerate(stages)
-    for k, v in items:
-        if isinstance(v, dict) and v.get("passed", v.get("ok", True)) is False:
-            lines.append(f"{v.get('name', k)}: FAIL reason={v.get('reason', v.get('error', ''))} "
-                         f"metrics={json.dumps(v.get('metrics', {k2: v2 for k2, v2 in v.items() if k2 not in ('passed', 'ok', 'reason', 'name')}), default=str)}")
-    return "\n".join(lines) or output[-6000:]
-
-
-def rules_docstring(gdir: Path) -> str:
-    import ast
-    try:
-        tree = ast.parse((gdir / "rules.py").read_text())
-        for node in tree.body:
-            if isinstance(node, ast.ClassDef) and ast.get_docstring(node):
-                return ast.get_docstring(node) or ""
-        return ast.get_docstring(tree) or ""
-    except (OSError, SyntaxError):
-        return ""
-
-
-# ---------------------------------------------------------------- lessons
-def append_lessons(cfg: Config, lines: list[str]) -> int:
-    p = cfg.prompts / "LESSONS.md"
-    with _lock:
-        existing = set(p.read_text().splitlines()) if p.exists() else set()
-        new = [l for l in dict.fromkeys(f"- {l.strip().lstrip('- ')}" for l in lines if l.strip()) if l not in existing]
-        if new:
-            with p.open("a") as f:
-                f.write("\n".join(new) + "\n")
-    return len(new)
-
-
-def lessons_from(result: dict) -> list[str]:
-    slug = result["slug"]
-    out = []
-    for fx in result.get("fixes", []):
-        if llm.is_infra_error(fx["error"]):
-            continue
-        cls = fx["error"].strip().splitlines()[-1][:120] if fx["error"].strip() else "unknown"
-        out.append(f"[{fx['stage']}] {slug}: failed with `{cls}`; fix {'worked' if fx['fixed'] else 'FAILED'}: {fx['change']}")
-    if result.get("failed_stage"):
-        if result.get("infra") or llm.is_infra_error(result.get("error", "")):
-            return out  # plumbing failed; nothing to learn about game design
-        out.append(f"[{result['failed_stage']}] {slug}: unrecovered after {result['fix_rounds']} fixes: {result.get('error', '')[-120:]}")
-    elif result.get("judge"):
-        j = result["judge"]
-        dims = {k: j.get(k) for k in ("fun", "clarity", "originality", "depth", "component_fit") if isinstance(j.get(k), (int, float))}
-        if dims:
-            weakest = min(dims, key=dims.get)
-            out.append(f"[passed] {slug}: weakest={weakest} ({dims[weakest]}/10); verdict={j.get('verdict', '?')}; note: {(j.get('notes') or [''])[0][:140]}")
-    return out
-
-
-# ---------------------------------------------------------------- pipeline
-class Run:
-    def __init__(self, run_dir: Path, idx: int, seed: int, cfg: Config):
-        self.cfg, self.idx, self.seed = cfg, idx, seed
-        self.run_dir = Path(run_dir)
-        self.out = self.run_dir / f"idea{idx:02d}"  # renamed to slug after IDEA
-        self.out.mkdir(parents=True, exist_ok=True)
-        self.res: dict[str, Any] = {"idx": idx, "seed": seed, "slug": None, "passed": [], "failed_stage": None,
-                                    "fix_rounds": 0, "fixes": [], "judge": None, "timings": {}, "costs": "unknown"}
-
-    def save(self, name: str, text: str) -> None:
-        (self.out / name).write_text(text)
-
-    def ask(self, step: str, prompt: str, name: str, **kw: Any) -> llm.LLMResult:
-        self.save(f"{name}.prompt.md", prompt)
-        r = llm.call(prompt, step, **kw)
-        self.save(f"{name}.out.txt", r.text + (f"\n\n--- stderr ---\n{r.stderr}" if r.stderr else ""))
-        self.res["timings"][name] = round(r.seconds, 1)
-        return r
-
-    def fail(self, stage: str, err: str) -> dict:
-        self.res.update(failed_stage=stage, error=err[-4000:], infra=llm.is_infra_error(err))
-        return self.res
-
-    def finish(self) -> dict:
-        self.res["fix_rounds"] = len(self.res["fixes"])
-        try:
-            append_lessons(self.cfg, lessons_from(self.res))
-        except OSError:
-            pass
-        (self.out / "result.json").write_text(json.dumps(self.res, indent=2, default=str))
-        return self.res
-
-    # -- steps
-    def step_idea(self) -> dict | None:
-        r = self.ask("idea", idea_prompt(self.cfg, self.seed), "idea")
-        if not r.ok:
-            self.fail("idea", r.stderr or "empty answer")
-            return None
-        info = parse_idea(r.text)
-        slug = reserve_slug(info["slug"], self.cfg.games)
-        info["slug"] = slug
-        self.res.update(slug=slug, name=info["name"], idea=info)
-        new_out = self.run_dir / slug
-        if not new_out.exists():
-            self.out.rename(new_out)
-            self.out = new_out
-        self.save("idea.md", r.text)
-        self.res["passed"].append("idea")
-        return info
-
-    def write_answer(self, text: str, slug: str) -> list[Path]:
-        return write_blocks(parse_file_blocks(text), self.cfg.root, f"games/{slug}/")
-
-    def step_code(self, idea: str, slug: str) -> bool:
-        prompt = code_prompt(self.cfg, idea, slug)
-        r = self.ask("code", prompt, "code", cwd=str(self.cfg.root), tools=True,
-                     system_append=(self.cfg.prompts / "contract.md").read_text())
-        written = self.write_answer(r.text, slug) if r.text else []
-        gdir = self.cfg.games / slug
-        if not (gdir / "rules.py").exists() or not (gdir / "spec.json").exists():
-            self.fail("code", f"missing files; written={[p.name for p in written]}; stderr={r.stderr[-500:]}")
-            return False
-        self.res["passed"].append("code")
-        return True
-
-    def fix_round(self, slug: str, stage: str, error: str, check, extra: str = "", budget: int | None = None) -> bool:
-        """Ask opus to fix until ``check()`` passes; returns True if fixed."""
-        budget = self.cfg.max_fix_rounds if budget is None else budget
-        for _ in range(budget):
-            n = len(self.res["fixes"]) + 1
-            r = self.ask("fix", fix_prompt(self.cfg, slug, stage, error, extra), f"fix{n}", cwd=str(self.cfg.root),
-                         tools=True, system_append=(self.cfg.prompts / "contract.md").read_text())
-            written = self.write_answer(r.text, slug) if r.text else []
-            ok, error2 = check()
-            self.res["fixes"].append({"stage": stage, "error": error[-600:], "fixed": ok,
-                                      "change": ", ".join(p.name for p in written) or "no files returned"})
-            if ok:
-                return True
-            error = error2
-        self.res["last_error"] = error[-4000:]
-        return False
-
-    def validate(self, slug: str) -> tuple[bool, str]:
-        t = run_tool(self.cfg.runner_cmd + ["validate", f"games/{slug}"], self.cfg.root, self.cfg.tool_timeout)
-        return t.ok, t.output
-
-    def pytest(self, slug: str) -> tuple[bool, str]:
-        t = run_tool(self.cfg.pytest_cmd + [f"games/{slug}", "-q", "-x", "--no-header", "-p", "no:cacheprovider"],
-                     self.cfg.root, self.cfg.tool_timeout)
-        return t.ok, t.output
-
-    def gauntlet(self, slug: str) -> tuple[bool, str]:
-        jp = self.out / "gauntlet.json"
-        t = run_tool(self.cfg.runner_cmd + ["gauntlet", f"games/{slug}", "--json", str(jp)], self.cfg.root,
-                     self.cfg.tool_timeout)
-        data = None
-        if jp.exists():
+    def _load_result(self, idx: int) -> IdeaResult | None:
+        p = self.idea_dir(idx) / "result.json"
+        if self.resume and p.exists():
             try:
-                data = json.loads(jp.read_text())
-            except json.JSONDecodeError:
-                data = None
-        self.res["gauntlet"] = data
-        ok = t.ok and (data is None or data.get("passed", True) is not False)
-        return ok, gauntlet_summary(data, t.output)
+                return IdeaResult.model_validate_json(p.read_text())
+            except ValueError:
+                return None
+        return None
 
-    def step_tests(self, slug: str, players: tuple[int, int]) -> bool:
-        gdir = self.cfg.games / slug
-        prompt = render(self.cfg, "tests", slug=slug, players=", ".join(map(str, range(players[0], players[1] + 1))),
-                        docstring=rules_docstring(gdir), rules=(gdir / "rules.py").read_text())
-        r = self.ask("tests", prompt, "tests")
-        if r.text:
-            self.write_answer(r.text, slug)
-        if not (gdir / "test_rules.py").exists():
-            self.fail("tests", f"no test file returned; stderr={r.stderr[-500:]}")
+    def ctx(self, idx: int) -> IdeaContext:
+        idea_dir = self.idea_dir(idx)
+        loaded = self._load_result(idx)
+        res = loaded or IdeaResult(idx=idx, seed=self.seed * 1000 + idx)
+        # On resume a finished idea (judged, or a real design failure) is final. Infra failures, dedupe culls
+        # and crashes are re-run from their last good step.
+        final = bool(loaded) and (loaded.passed and loaded.step("judge") is not None
+                                  or (loaded.failed_stage not in (None, "dedupe", "crash") and not loaded.infra))
+        if not final:
+            res.failed_stage, res.error, res.infra = None, "", False
+        return IdeaContext(cfg=self.cfg, llm=self.llm, prompts=self.prompts, ws=Workspace(idea_dir).create(self.snap),
+                           result=res, idea_dir=idea_dir, events=self.events, resume=self.resume, final=final)
+
+    def save(self, ctx: IdeaContext) -> IdeaResult:
+        (ctx.idea_dir / "result.json").write_text(json.dumps(ctx.result.summary_dict(), indent=2, default=str))
+        self.results[ctx.result.idx] = ctx.result
+        return ctx.result
+
+    def direction_for(self, ctx: IdeaContext) -> str:
+        d = choose_direction(ctx.result.seed, self.registry.catalog_tags() | {t for b in self.registry.briefs() for t in b.tags()},
+                             self._used_directions)
+        self._used_directions.add(d)
+        return d
+
+    # ---------------------------------------------------------------- one idea
+    def idea_phase(self, ctx: IdeaContext) -> bool:
+        """Generate + register one brief. Returns True when the idea may be built."""
+        idx = ctx.result.idx
+        if ctx.final:
+            if ctx.result.brief:
+                self.registry.reserve(idx, ctx.result.brief)
+            else:
+                self.registry.skip(idx)
             return False
-        ok, err = self.pytest(slug)
-        if not ok:
-            ok = self.fix_round(slug, "tests", err, lambda: self.pytest(slug), budget=1,
-                                extra="The tests were auto-generated and MAY be wrong; fix rules.py or test_rules.py, whichever is at fault.")
-        if not ok:
-            self.fail("tests", self.res.get("last_error", err))
+        try:
+            brief = step_idea(ctx, self.direction_for(ctx), self.registry.briefs())
+        except StepFailed as e:
+            self.registry.skip(idx)
+            ctx.result.failed_stage, ctx.result.error, ctx.result.infra = e.stage, e.error[-4000:], infra_flag(e.error)
             return False
-        self.res["passed"].append("tests")
+        except Exception as e:  # noqa: BLE001 - never kill the pool
+            self.registry.skip(idx)
+            ctx.result.failed_stage, ctx.result.error = "crash", f"{type(e).__name__}: {e}"
+            return False
+        if ctx.resume and ctx.result.slug:  # already registered in an earlier attempt
+            brief.slug = ctx.result.slug
+            self.registry.reserve(idx, brief)
+        else:
+            try:
+                self.registry.register(idx, brief)
+            except Duplicate as d:
+                ctx.result.slug = brief.slug
+                ctx.result.failed_stage, ctx.result.error = "dedupe", str(d)
+                self.events.emit("dedupe", idx=idx, slug=brief.slug, against=d.against, similarity=round(d.similarity, 2))
+                return False
+        ctx.result.slug = brief.slug
+        (ctx.idea_dir / "brief.json").write_text(brief.model_dump_json(indent=1))
         return True
 
-    def step_judge(self, slug: str, idea: str) -> None:
-        gdir = self.cfg.games / slug
-        metrics = json.dumps(self.res.get("gauntlet") or {}, indent=1, default=str)[:8000]
-        r = self.ask("judge", render(self.cfg, "judge", idea=idea[:8000], docstring=rules_docstring(gdir), metrics=metrics), "judge")
-        j = parse_json_block(r.text) if r.text else None
-        if j is None:
-            self.fail("judge", "no JSON verdict")
-            return
-        j["total"] = sum(v for k, v in j.items() if k in ("fun", "clarity", "originality", "depth", "component_fit") and isinstance(v, (int, float)))
-        self.res["judge"] = j
-        (self.out / "judge.json").write_text(json.dumps(j, indent=2))
-        self.res["passed"].append("judge")
-
-    def run(self) -> dict:
-        t0 = time.monotonic()
+    def build_phase(self, ctx: IdeaContext) -> None:
         try:
-            self._run()
-        except Exception as e:  # noqa: BLE001 - never kill the pool
-            self.res.update(failed_stage=self.res.get("failed_stage") or "crash", error=f"{type(e).__name__}: {e}")
-        self.res["timings"]["total"] = round(time.monotonic() - t0, 1)
-        return self.finish()
+            ctx.idea_text = ctx.idea_text or (ctx.idea_dir / "idea.md").read_text()
+            for _, fn in BUILD_STEPS:
+                fn(ctx)
+            if self.cfg.promote:
+                step_promote(ctx)
+        except StepFailed as e:
+            ctx.result.failed_stage, ctx.result.error, ctx.result.infra = e.stage, e.error[-4000:], infra_flag(e.error)
+        except Exception as e:  # noqa: BLE001
+            ctx.result.failed_stage, ctx.result.error = "crash", f"{type(e).__name__}: {e}"
 
-    def _run(self) -> dict:
-        info = self.step_idea()
-        if info is None:
-            return self.res
-        slug, idea = info["slug"], (self.out / "idea.md").read_text()
-        if not self.step_code(idea, slug):
-            return self.res
-        ok, err = self.validate(slug)
-        if not ok and not self.fix_round(slug, "validate", err, lambda: self.validate(slug)):
-            return self.fail("validate", self.res.get("last_error", err))
-        self.res["passed"].append("validate")
-        if not self.step_tests(slug, info["players"]):
-            return self.res
-        ok, err = self.gauntlet(slug)
-        if not ok and not self.fix_round(slug, "gauntlet", err, lambda: self.gauntlet(slug),
-                                         extra="Failing gauntlet stages with metrics are listed above. Adjust rules to fix balance/length/decision density while keeping the game's identity."):
-            return self.fail("gauntlet", self.res.get("last_error", err))
-        self.res["passed"].append("gauntlet")
-        self.step_judge(slug, idea)
-        return self.res
+    def finish(self, ctx: IdeaContext) -> IdeaResult:
+        """Publish one idea's lessons immediately, so later ideas in this run can use them."""
+        r = ctx.result
+        records = lessons_mod.records_from(r, self.manifest.run_id)
+        if not ctx.final:
+            lessons_mod.append(self.run_dir, records)
+            self.board.add(lessons_mod.bullets(records, aggregate=False))
+        self.events.emit("idea_done", idx=r.idx, slug=r.slug, failed_stage=r.failed_stage, infra=r.infra,
+                         fixes=r.fix_rounds, judge=r.judge.total if r.judge else None, promoted=r.promoted)
+        return self.save(ctx)
+
+    def one(self, ctx: IdeaContext) -> IdeaResult:
+        t0 = time.monotonic()
+        if self.idea_phase(ctx):
+            self.build_phase(ctx)
+            ctx.result.timings["total"] = round(ctx.result.timings.get("total", 0.0) + time.monotonic() - t0, 1)
+        return self.finish(ctx)
+
+    # ---------------------------------------------------------------- run
+    def run(self, on_result=None) -> list[IdeaResult]:
+        self.events.emit("run_start", run=self.manifest.run_id, n=self.n, seed=self.seed, resume=self.resume,
+                         mode=self.cfg.mode, parallel=self.cfg.parallel, live_lessons=self.cfg.live_lessons)
+        contexts = [self.ctx(i) for i in range(self.n)]
+        workers = max(1, self.cfg.parallel)
+        if self.cfg.mode == "phased":
+            with ThreadPoolExecutor(max_workers=workers) as ex:
+                buildable = [c for c, ok in zip(contexts, ex.map(self.idea_phase, contexts)) if ok]
+            for c in contexts:
+                if c not in buildable and (r := self.finish(c)) and on_result:
+                    on_result(r)
+            with ThreadPoolExecutor(max_workers=workers) as ex:
+                for c in buildable:
+                    ex.submit(lambda c=c: (self.build_phase(c), self.finish(c)))
+            for c in buildable:
+                if on_result:
+                    on_result(self.results[c.result.idx])
+        else:
+            with ThreadPoolExecutor(max_workers=workers) as ex:
+                for r in ex.map(self.one, contexts):
+                    if on_result:
+                        on_result(r)
+        rows = [self.results[i].summary_dict() for i in sorted(self.results)]
+        (self.run_dir / "results.json").write_text(json.dumps(rows, indent=2, default=str))
+        self.events.emit("run_end", run=self.manifest.run_id, passed=sum(r.passed for r in self.results.values()))
+        return [self.results[i] for i in sorted(self.results)]
 
 
-def run_one(run_dir: str | Path, idx: int, seed: int, cfg: Config) -> dict:
-    """Run the full pipeline for one idea; returns the result dict (also saved as result.json)."""
-    return Run(Path(run_dir), idx, seed, cfg).run()
+def load_results(run_dir: Path) -> list[dict[str, Any]]:
+    out = []
+    for p in sorted(Path(run_dir).glob("idea*/result.json")):
+        try:
+            out.append(json.loads(p.read_text()))
+        except json.JSONDecodeError:
+            continue
+    return out
+
+
+__all__ = ["Batch", "IdeaBrief", "jaccard", "load_results"]

@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 
 cmd = sys.argv[1] if len(sys.argv) > 1 else "pytest"
-if cmd.startswith("games/"):
-    cmd = "pytest"
+if cmd not in ("validate", "gauntlet", "sim", "play", "gate"):
+    cmd = "pytest"  # pytest is invoked with the game dir as first argument
 state = Path(os.environ.get("GD_FAKE_STATE", "/tmp/gd_fake_state"))
 state.mkdir(parents=True, exist_ok=True)
 cf = state / f"{cmd}.count"

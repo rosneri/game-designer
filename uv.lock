@@ -14,6 +14,7 @@ members = [
     "gd-gm",
     "gd-report",
     "gd-runner",
+    "gd-sourcing",
 ]
 
 [[package]]
@@ -88,6 +89,7 @@ dependencies = [
     { name = "gd-gm" },
     { name = "gd-report" },
     { name = "gd-runner" },
+    { name = "gd-sourcing" },
 ]
 
 [package.dev-dependencies]
@@ -108,6 +110,7 @@ requires-dist = [
     { name = "gd-gm", editable = "libs/gm" },
     { name = "gd-report", editable = "libs/report" },
     { name = "gd-runner", editable = "apps/runner" },
+    { name = "gd-sourcing", editable = "apps/sourcing" },
 ]
 
 [package.metadata.requires-dev]
@@ -243,6 +246,11 @@ requires-dist = [
     { name = "gd-gm", editable = "libs/gm" },
     { name = "gd-report", editable = "libs/report" },
 ]
+
+[[package]]
+name = "gd-sourcing"
+version = "0.1.0"
+source = { editable = "apps/sourcing" }
 
 [[package]]
 name = "h11"

@@ -4,7 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
   "gd-cards", "gd-dice", "gd-gamecore", "gd-gm", "gd-agents", "gd-gauntlet", "gd-report",
-  "gd-runner", "gd-generator",
+  "gd-runner", "gd-generator", "gd-sourcing",
 ]
 
 [dependency-groups]
@@ -23,6 +23,7 @@ gd-gauntlet = { workspace = true }
 gd-report = { workspace = true }
 gd-runner = { workspace = true }
 gd-generator = { workspace = true }
+gd-sourcing = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = ["libs", "apps", "games"]
