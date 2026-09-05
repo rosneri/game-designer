@@ -4,14 +4,15 @@
   "seat-balance-3p-4p": {
    "id": "seat-balance-3p-4p",
    "kind": "constraint",
-   "text": "At 3 and 4 players every seat's win rate must land within 0.05 of 1/n under random play; rotate start seat/priority each round or add a trailing-player catch-up so seat 1 is not favored.",
+   "text": "Under random play every 3p seat must win 0.28-0.38 and every 4p seat 0.20-0.30; rotate the start player every round and never give the first seat first pick or first bid without a compensating cost.",
    "targets": [
     "idea",
-    "code"
+    "code",
+    "fix"
    ],
-   "source_run": "batch3",
+   "source_run": "20260905-181143-c1",
    "created": "2026-09-05T14:39:10+00:00",
-   "updated": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
    "uses": 0
   },
   "guaranteed-termination": {
@@ -43,13 +44,15 @@
   "cap-greedy-dominance": {
    "id": "cap-greedy-dominance",
    "kind": "skill",
-   "text": "Greedy-vs-random win rate at 2p should stay under 0.75; include at least one decision where the myopic value-maximizing play is wrong (delayed payoff, saving high cards, bluffing cost).",
+   "text": "Greedy-vs-random win rate must be 0.55-0.75 at 2p and above 1/n+0.12 at 3p/4p; hit the ceiling with hidden info or counterplay, never with extra random draws.",
    "targets": [
-    "idea"
+    "idea",
+    "code",
+    "fix"
    ],
-   "source_run": "batch3",
+   "source_run": "20260905-181143-c1",
    "created": "2026-09-05T14:39:10+00:00",
-   "updated": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
    "uses": 0
   },
   "hand-cards-need-competing-uses": {
@@ -67,13 +70,66 @@
   "bluffing-needs-private-info": {
    "id": "bluffing-needs-private-info",
    "kind": "note",
-   "text": "Betting-and-bluffing or simultaneous-selection designs must give each player private information beyond their own hand (hidden lot values, secret goals, a second concurrent lot) so bluffs are not solved by card counting.",
+   "text": "Any hidden-role, hidden-VP, bluffing or simultaneous-selection design must make the hidden part decisive: hidden points >= 30% of a typical winning score, or the hidden role gets an action no other role has.",
    "targets": [
-    "idea"
+    "idea",
+    "code"
    ],
-   "source_run": "batch3",
+   "source_run": "20260905-181143-c1",
    "created": "2026-09-05T14:39:10+00:00",
-   "updated": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
+   "uses": 0
+  },
+  "game-length-cap": {
+   "id": "game-length-cap",
+   "kind": "constraint",
+   "text": "Estimated play time must stay under 25 min at every player count and total turns under 45; size the deck and hand so a game ends within that budget.",
+   "targets": [
+    "idea",
+    "code"
+   ],
+   "source_run": "20260905-181143-c1",
+   "created": "2026-09-05T16:08:23+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
+   "uses": 0
+  },
+  "decision-density-floor": {
+   "id": "decision-density-floor",
+   "kind": "constraint",
+   "text": "Mean legal actions per turn must exceed 5 and the share of forced (single-option) turns must stay under 0.05 at every player count.",
+   "targets": [
+    "idea",
+    "code"
+   ],
+   "source_run": "20260905-181143-c1",
+   "created": "2026-09-05T16:08:23+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
+   "uses": 0
+  },
+  "draw-rate-cap": {
+   "id": "draw-rate-cap",
+   "kind": "constraint",
+   "text": "Draw rate must stay under 0.05 at every player count; define a full deterministic tiebreak chain (score, then a secondary resource, then seat furthest from start) so ties cannot remain.",
+   "targets": [
+    "code",
+    "fix"
+   ],
+   "source_run": "20260905-181143-c1",
+   "created": "2026-09-05T16:08:23+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
+   "uses": 0
+  },
+  "rulesheet-worked-example": {
+   "id": "rulesheet-worked-example",
+   "kind": "note",
+   "text": "The rulesheet must contain one fully worked example turn and one worked end-of-game scoring example with concrete card values.",
+   "targets": [
+    "code",
+    "fix"
+   ],
+   "source_run": "20260905-181143-c1",
+   "created": "2026-09-05T16:08:23+00:00",
+   "updated": "2026-09-05T16:08:23+00:00",
    "uses": 0
   }
  },
@@ -230,6 +286,232 @@
      "source_run": "batch3",
      "created": "2026-09-05T14:39:10+00:00",
      "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    }
+   },
+   "rolled_back": false
+  },
+  {
+   "event_id": "r5f6154abe2",
+   "run": "20260905-181143-c1",
+   "trigger": "auto",
+   "created": "2026-09-05T16:08:23+00:00",
+   "edits": [
+    {
+     "op": "update",
+     "id": "cap-greedy-dominance",
+     "kind": "skill",
+     "text": "Greedy-vs-random win rate must be 0.55-0.75 at 2p and above 1/n+0.12 at 3p/4p; hit the ceiling with hidden info or counterplay, never with extra random draws.",
+     "targets": [
+      "idea",
+      "code",
+      "fix"
+     ],
+     "reason": "7 of 10 games had 2p greedy >= 0.88 (bindle 1.0, open-outcry 0.992, mutiny/watchfire 0.983); lamplighter failed the gauntlet at >=0.97 everywhere while watchfire (4p 0.28) and crossgrain (3p 0.39, 4p 0.24) failed the floor and needed fix passes."
+    },
+    {
+     "op": "create",
+     "id": "game-length-cap",
+     "kind": "constraint",
+     "text": "Estimated play time must stay under 25 min at every player count and total turns under 45; size the deck and hand so a game ends within that budget.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "reason": "Judges flagged length as too long for the depth in mutiny (32-50 min), crossgrain (32-64), bindle (28-29, ~69 turns), millwright (28) and watchfire (48 turns); every game in the batch scored fun 6."
+    },
+    {
+     "op": "create",
+     "id": "decision-density-floor",
+     "kind": "constraint",
+     "text": "Mean legal actions per turn must exceed 5 and the share of forced (single-option) turns must stay under 0.05 at every player count.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "reason": "mutiny (3.33 legal, depth 5), ransom (3.48, forced 0.163) and crossgrain (4.15, forced 0.208) were all called shallow or dense-but-slow by the judge; the games above 8 legal actions were not criticised on this axis."
+    },
+    {
+     "op": "update",
+     "id": "seat-balance-3p-4p",
+     "kind": "constraint",
+     "text": "Under random play every 3p seat must win 0.28-0.38 and every 4p seat 0.20-0.30; rotate the start player every round and never give the first seat first pick or first bid without a compensating cost.",
+     "targets": [
+      "idea",
+      "code",
+      "fix"
+     ],
+     "reason": "Existing 0.05 rule was still breached: crossgrain 4p 0.312 vs 0.223, furlong 3p 0.377 vs 0.263, lamplighter 4p 0.30 vs 0.21, millwright 3p 0.283; judges attributed it to fixed lead/first-pick order in four games."
+    },
+    {
+     "op": "create",
+     "id": "draw-rate-cap",
+     "kind": "constraint",
+     "text": "Draw rate must stay under 0.05 at every player count; define a full deterministic tiebreak chain (score, then a secondary resource, then seat furthest from start) so ties cannot remain.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "reason": "bindle reached a 0.203 draw rate at 4p (0.12 at 3p) and the judge marked it as games stalling into ties; every other game in the batch was near 0."
+    },
+    {
+     "op": "update",
+     "id": "bluffing-needs-private-info",
+     "kind": "note",
+     "text": "Any hidden-role, hidden-VP, bluffing or simultaneous-selection design must make the hidden part decisive: hidden points >= 30% of a typical winning score, or the hidden role gets an action no other role has.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "reason": "open-outcry's hidden vault was judged irrelevant because public portfolio+ticker dominate score; watchfire's saboteur had no unique action and its hidden-role tension was called thin; ransom's private peek had no way to be leveraged."
+    },
+    {
+     "op": "create",
+     "id": "rulesheet-worked-example",
+     "kind": "note",
+     "text": "The rulesheet must contain one fully worked example turn and one worked end-of-game scoring example with concrete card values.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "reason": "Clarity was 6 in 8 of 10 games; judges explicitly asked for a worked example in crossgrain, lamplighter and oubliette, and the two games with clarity 7 (open-outcry, bindle) were the ones with simpler scoring."
+    }
+   ],
+   "before": {
+    "cap-greedy-dominance": {
+     "id": "cap-greedy-dominance",
+     "kind": "skill",
+     "text": "Greedy-vs-random win rate at 2p should stay under 0.75; include at least one decision where the myopic value-maximizing play is wrong (delayed payoff, saving high cards, bluffing cost).",
+     "targets": [
+      "idea"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "game-length-cap": null,
+    "decision-density-floor": null,
+    "seat-balance-3p-4p": {
+     "id": "seat-balance-3p-4p",
+     "kind": "constraint",
+     "text": "At 3 and 4 players every seat's win rate must land within 0.05 of 1/n under random play; rotate start seat/priority each round or add a trailing-player catch-up so seat 1 is not favored.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "draw-rate-cap": null,
+    "bluffing-needs-private-info": {
+     "id": "bluffing-needs-private-info",
+     "kind": "note",
+     "text": "Betting-and-bluffing or simultaneous-selection designs must give each player private information beyond their own hand (hidden lot values, secret goals, a second concurrent lot) so bluffs are not solved by card counting.",
+     "targets": [
+      "idea"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "rulesheet-worked-example": null
+   },
+   "after": {
+    "cap-greedy-dominance": {
+     "id": "cap-greedy-dominance",
+     "kind": "skill",
+     "text": "Greedy-vs-random win rate must be 0.55-0.75 at 2p and above 1/n+0.12 at 3p/4p; hit the ceiling with hidden info or counterplay, never with extra random draws.",
+     "targets": [
+      "idea",
+      "code",
+      "fix"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "game-length-cap": {
+     "id": "game-length-cap",
+     "kind": "constraint",
+     "text": "Estimated play time must stay under 25 min at every player count and total turns under 45; size the deck and hand so a game ends within that budget.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T16:08:23+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "decision-density-floor": {
+     "id": "decision-density-floor",
+     "kind": "constraint",
+     "text": "Mean legal actions per turn must exceed 5 and the share of forced (single-option) turns must stay under 0.05 at every player count.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T16:08:23+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "seat-balance-3p-4p": {
+     "id": "seat-balance-3p-4p",
+     "kind": "constraint",
+     "text": "Under random play every 3p seat must win 0.28-0.38 and every 4p seat 0.20-0.30; rotate the start player every round and never give the first seat first pick or first bid without a compensating cost.",
+     "targets": [
+      "idea",
+      "code",
+      "fix"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "draw-rate-cap": {
+     "id": "draw-rate-cap",
+     "kind": "constraint",
+     "text": "Draw rate must stay under 0.05 at every player count; define a full deterministic tiebreak chain (score, then a secondary resource, then seat furthest from start) so ties cannot remain.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T16:08:23+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "bluffing-needs-private-info": {
+     "id": "bluffing-needs-private-info",
+     "kind": "note",
+     "text": "Any hidden-role, hidden-VP, bluffing or simultaneous-selection design must make the hidden part decisive: hidden points >= 30% of a typical winning score, or the hidden role gets an action no other role has.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
+     "uses": 0
+    },
+    "rulesheet-worked-example": {
+     "id": "rulesheet-worked-example",
+     "kind": "note",
+     "text": "The rulesheet must contain one fully worked example turn and one worked end-of-game scoring example with concrete card values.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "source_run": "20260905-181143-c1",
+     "created": "2026-09-05T16:08:23+00:00",
+     "updated": "2026-09-05T16:08:23+00:00",
      "uses": 0
     }
    },
