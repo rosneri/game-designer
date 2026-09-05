@@ -1,0 +1,33 @@
+{
+  "slug": "mutiny",
+  "name": "Mutiny",
+  "tagline": "Shed your cargo, or roll the die to overturn the crew's Orders.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 2,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "ladder-climbing",
+    "hand-management",
+    "push-your-luck",
+    "dice-rolling",
+    "take-that"
+  ],
+  "core_loop": "Play same-rank cards up or down the Wake for instant points, or roll the die to flip one of the two joker Orders and play under the new rules.",
+  "win_condition": "Highest total score after three rounds; going out pays a bonus and leaves the others losing a point per card held.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
