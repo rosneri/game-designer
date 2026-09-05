@@ -58,6 +58,11 @@ uv run ruff check libs apps
 If any gate fails, every touched file is restored byte for byte and the attempt is recorded as reverted, so the
 next cycle knows not to try it again. Only a change that keeps the suite green survives.
 
+**Run it as the only writer.** The revert restores every file whose bytes changed during the call, so anything
+another agent or editor saves into `prompts/`, `libs/` or `apps/` while the step is running would be rolled
+back with it. Batches are safe to run alongside other work (they only write `runs/` and, at the very end, one
+game directory); `improve` is not.
+
 ## Commands
 
 ```bash

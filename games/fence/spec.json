@@ -1,0 +1,32 @@
+{
+  "slug": "fence",
+  "name": "Fence",
+  "tagline": "Bid for the stolen goods or quietly stash your card for half its worth.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "auction-bidding",
+    "simultaneous-action-selection",
+    "hand-management",
+    "betting-and-bluffing"
+  ],
+  "core_loop": "Each player secretly commits one card as a bid or a stash; the highest bid takes the whole lot, losing bids sweeten it for next round, stashes bank half value.",
+  "win_condition": "Most points when every hand is empty; ties go to the most recent lot winner, then the lowest seat.",
+  "est_minutes": [
+    15,
+    25
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "simultaneous"
+}

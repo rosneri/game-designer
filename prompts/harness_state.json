@@ -1,0 +1,239 @@
+{
+ "version": 1,
+ "entries": {
+  "seat-balance-3p-4p": {
+   "id": "seat-balance-3p-4p",
+   "kind": "constraint",
+   "text": "At 3 and 4 players every seat's win rate must land within 0.05 of 1/n under random play; rotate start seat/priority each round or add a trailing-player catch-up so seat 1 is not favored.",
+   "targets": [
+    "idea",
+    "code"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  },
+  "guaranteed-termination": {
+   "id": "guaranteed-termination",
+   "kind": "constraint",
+   "text": "Every game needs a hard terminator independent of player choices (deck exhaustion or round cap); random play must end within 300 turns at every player count, or s2_playable fails at max_turns=1500.",
+   "targets": [
+    "code",
+    "fix"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  },
+  "no-dominated-fallback-action": {
+   "id": "no-dominated-fallback-action",
+   "kind": "constraint",
+   "text": "No legal action may be strictly dominated in expected value by another (e.g. 'stash for half value' vs 'bid'); give every fallback a situational upside such as immunity, multiplier, or later reuse.",
+   "targets": [
+    "idea",
+    "code"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  },
+  "cap-greedy-dominance": {
+   "id": "cap-greedy-dominance",
+   "kind": "skill",
+   "text": "Greedy-vs-random win rate at 2p should stay under 0.75; include at least one decision where the myopic value-maximizing play is wrong (delayed payoff, saving high cards, bluffing cost).",
+   "targets": [
+    "idea"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  },
+  "hand-cards-need-competing-uses": {
+   "id": "hand-cards-need-competing-uses",
+   "kind": "note",
+   "text": "When hand-management is a listed mechanic, each card must have at least two competing uses or a reason to hold it (reuse limit, end-game bonus for kept cards), not just 'play highest that clears the threshold'.",
+   "targets": [
+    "idea"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  },
+  "bluffing-needs-private-info": {
+   "id": "bluffing-needs-private-info",
+   "kind": "note",
+   "text": "Betting-and-bluffing or simultaneous-selection designs must give each player private information beyond their own hand (hidden lot values, secret goals, a second concurrent lot) so bluffs are not solved by card counting.",
+   "targets": [
+    "idea"
+   ],
+   "source_run": "batch3",
+   "created": "2026-09-05T14:39:10+00:00",
+   "updated": "2026-09-05T14:39:10+00:00",
+   "uses": 0
+  }
+ },
+ "refinements": [
+  {
+   "event_id": "r70213b5aac",
+   "run": "batch3",
+   "trigger": "manual",
+   "created": "2026-09-05T14:39:10+00:00",
+   "edits": [
+    {
+     "op": "create",
+     "id": "seat-balance-3p-4p",
+     "kind": "constraint",
+     "text": "At 3 and 4 players every seat's win rate must land within 0.05 of 1/n under random play; rotate start seat/priority each round or add a trailing-player catch-up so seat 1 is not favored.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "reason": "Both batch3 games flagged seat-order advantage: undercroft 3p 0.293/0.373/0.333, fence 3p 0.413/0.33/0.257 while 2p was even."
+    },
+    {
+     "op": "create",
+     "id": "guaranteed-termination",
+     "kind": "constraint",
+     "text": "Every game needs a hard terminator independent of player choices (deck exhaustion or round cap); random play must end within 300 turns at every player count, or s2_playable fails at max_turns=1500.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "reason": "undercroft failed gauntlet s2_playable with 'exceeded max_turns=1500' at 2p and 3p and needed a rules.py fix."
+    },
+    {
+     "op": "create",
+     "id": "no-dominated-fallback-action",
+     "kind": "constraint",
+     "text": "No legal action may be strictly dominated in expected value by another (e.g. 'stash for half value' vs 'bid'); give every fallback a situational upside such as immunity, multiplier, or later reuse.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "reason": "fence: stash (floor half value) was judged strictly worse than bidding, so 8.6 mean legal actions still scored depth 6; padding options does not buy depth."
+    },
+    {
+     "op": "create",
+     "id": "cap-greedy-dominance",
+     "kind": "skill",
+     "text": "Greedy-vs-random win rate at 2p should stay under 0.75; include at least one decision where the myopic value-maximizing play is wrong (delayed payoff, saving high cards, bluffing cost).",
+     "targets": [
+      "idea"
+     ],
+     "reason": "undercroft greedy 0.875 and fence greedy 0.783 / MCTS 1.0 at 2p; judge cited both as solvable by simple heuristics, depth 5-6."
+    },
+    {
+     "op": "create",
+     "id": "hand-cards-need-competing-uses",
+     "kind": "note",
+     "text": "When hand-management is a listed mechanic, each card must have at least two competing uses or a reason to hold it (reuse limit, end-game bonus for kept cards), not just 'play highest that clears the threshold'.",
+     "targets": [
+      "idea"
+     ],
+     "reason": "undercroft: fight decision was 'weapon value + suit + die vs threshold', judged mechanical; hand-management contributed no tradeoff and depth scored 5."
+    },
+    {
+     "op": "create",
+     "id": "bluffing-needs-private-info",
+     "kind": "note",
+     "text": "Betting-and-bluffing or simultaneous-selection designs must give each player private information beyond their own hand (hidden lot values, secret goals, a second concurrent lot) so bluffs are not solved by card counting.",
+     "targets": [
+      "idea"
+     ],
+     "reason": "fence: one shared lot with no private info beyond hand was judged to have limited bluffing depth once players count cards; fun 6."
+    }
+   ],
+   "before": {
+    "seat-balance-3p-4p": null,
+    "guaranteed-termination": null,
+    "no-dominated-fallback-action": null,
+    "cap-greedy-dominance": null,
+    "hand-cards-need-competing-uses": null,
+    "bluffing-needs-private-info": null
+   },
+   "after": {
+    "seat-balance-3p-4p": {
+     "id": "seat-balance-3p-4p",
+     "kind": "constraint",
+     "text": "At 3 and 4 players every seat's win rate must land within 0.05 of 1/n under random play; rotate start seat/priority each round or add a trailing-player catch-up so seat 1 is not favored.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "guaranteed-termination": {
+     "id": "guaranteed-termination",
+     "kind": "constraint",
+     "text": "Every game needs a hard terminator independent of player choices (deck exhaustion or round cap); random play must end within 300 turns at every player count, or s2_playable fails at max_turns=1500.",
+     "targets": [
+      "code",
+      "fix"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "no-dominated-fallback-action": {
+     "id": "no-dominated-fallback-action",
+     "kind": "constraint",
+     "text": "No legal action may be strictly dominated in expected value by another (e.g. 'stash for half value' vs 'bid'); give every fallback a situational upside such as immunity, multiplier, or later reuse.",
+     "targets": [
+      "idea",
+      "code"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "cap-greedy-dominance": {
+     "id": "cap-greedy-dominance",
+     "kind": "skill",
+     "text": "Greedy-vs-random win rate at 2p should stay under 0.75; include at least one decision where the myopic value-maximizing play is wrong (delayed payoff, saving high cards, bluffing cost).",
+     "targets": [
+      "idea"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "hand-cards-need-competing-uses": {
+     "id": "hand-cards-need-competing-uses",
+     "kind": "note",
+     "text": "When hand-management is a listed mechanic, each card must have at least two competing uses or a reason to hold it (reuse limit, end-game bonus for kept cards), not just 'play highest that clears the threshold'.",
+     "targets": [
+      "idea"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    },
+    "bluffing-needs-private-info": {
+     "id": "bluffing-needs-private-info",
+     "kind": "note",
+     "text": "Betting-and-bluffing or simultaneous-selection designs must give each player private information beyond their own hand (hidden lot values, secret goals, a second concurrent lot) so bluffs are not solved by card counting.",
+     "targets": [
+      "idea"
+     ],
+     "source_run": "batch3",
+     "created": "2026-09-05T14:39:10+00:00",
+     "updated": "2026-09-05T14:39:10+00:00",
+     "uses": 0
+    }
+   },
+   "rolled_back": false
+  }
+ ]
+}

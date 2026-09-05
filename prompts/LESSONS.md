@@ -1,6 +1,6 @@
 # Lessons
 
-Appended by the generator after every run. One bullet per lesson. Newest last.
+Appended by `generator learn <run>` after each batch. One bullet per lesson. Newest last.
 
 - [gauntlet] loom: failed with `s6_length: FAIL reason=estimated 2-4 min does not overlap [8, 35] metrics={"p2": {"mean_turns": 18, "est_minutes": 1.8},`; fix worked: rules.py, spec.json
 - [passed] loom: weakest=fun (6/10); verdict=iterate; note: 3-player balance is skewed (seat 0 wins far more than seat 2); adjust turn/start-player rotation or scoring to compensate for draft-order di
@@ -18,3 +18,9 @@ Appended by the generator after every run. One bullet per lesson. Newest last.
 - [passed] chicane: weakest=fun (6/10); verdict=iterate; note: Lay is nearly always dominant (guaranteed +1, no risk) while Drive risks wasted throttle — rebalance so Drive's variance pays off more, e.g.
 - [tests] overburden: failed with `1 failed, 9 passed in 0.27s`; fix worked: test_rules.py
 - [passed] overburden: weakest=fun (6/10); verdict=iterate; note: Estimated 33-37 minutes for a 4x4 grid game is too long; tighten pacing by shrinking deck used or adding faster win conditions.
+- [batch] failures by stage: tests=1, gauntlet=1
+- [batch] 2 judged, mean total 31.5/50; weakest dims: fun=1, depth=1; greedy max win rate median 0.88; legal actions/turn median 8.6
+- [tests] fence: failed with `1 failed, 27 passed in 0.89s`; fix worked: test_rules.py
+- [passed] fence: 32/50 weakest=fun (6/10); verdict=iterate; note: 3p/4p seat win rates are uneven (0.257-0.413 in 3p), suggesting seat-order advantage needs fixing, e.g. rotate priority or randomize resolut
+- [gauntlet] undercroft: failed with `s2_playable: FAIL reason=n=2: exceeded max_turns=1500; n=2: exceeded max_turns=1500; n=2: exceeded max_turns=1500; n=3: `; fix worked: rules.py
+- [passed] undercroft: 31/50 weakest=depth (5/10); verdict=iterate; note: 3-seat/4-seat win rates show notable seat-order advantage for seat 1 and later seats over seat 2/3; tune turn order or add catch-up mechanic

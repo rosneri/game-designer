@@ -39,6 +39,8 @@ def cfg(tmp_path, monkeypatch) -> GeneratorConfig:
     root = tmp_path / "repo"
     shutil.copytree(REPO / "prompts", root / "prompts")
     (root / "prompts" / "LESSONS.md").write_text("# Lessons\n\n")
+    # never inherit the real repo's learned state: every test starts from an empty ledger
+    (root / "prompts" / "harness_state.json").unlink(missing_ok=True)
     shutil.copytree(REPO / "libs" / "gamecore" / "src" / "gd_gamecore", root / "libs/gamecore/src/gd_gamecore")
     (root / "games").mkdir()
     monkeypatch.setenv("GD_PRIME_AGENT_BIN", STUB_LLM)
@@ -142,6 +144,12 @@ def test_llm_client_uses_stub_and_retries_infra(cfg, monkeypatch, tmp_path):
     r = client.call("judge", "x")
     assert not r.ok and r.infra and r.retries == 1
     assert is_infra_error("TIMEOUT after 5s") and not is_infra_error("AssertionError: seat 0 wins")
+
+
+def test_tool_output_is_stripped_of_colour_codes():
+    from gd_generator.steps import strip_ansi
+    assert strip_ansi("\x1b[31m\x1b[1m1 failed\x1b[0m, 27 passed") == "1 failed, 27 passed"
+    assert strip_ansi("plain") == "plain"
 
 
 def test_gauntlet_summary():

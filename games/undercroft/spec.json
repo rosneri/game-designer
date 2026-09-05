@@ -1,0 +1,33 @@
+{
+  "slug": "undercroft",
+  "name": "Undercroft",
+  "tagline": "Throw your gear at the monsters guarding the loot.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "push-your-luck",
+    "dice-rolling",
+    "hand-management",
+    "open-drafting",
+    "fantasy"
+  ],
+  "core_loop": "On your turn grab an unguarded treasure, rest to draw gear, or spend a card as a weapon and roll a die to slay a monster and claim its hoard.",
+  "win_condition": "Highest total card value in trophies plus hoard when the corridor can no longer be refilled.",
+  "est_minutes": [
+    15,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

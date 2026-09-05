@@ -6,6 +6,7 @@ run can be resumed: a step whose record says ``ok`` and whose artifacts still ex
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import time
 from collections.abc import Callable
@@ -28,6 +29,14 @@ class StepFailed(Exception):
         self.stage, self.error = stage, error
 
 
+ANSI = re.compile(r"\x1b\[[0-9;]*[a-zA-Z]")
+
+
+def strip_ansi(text: str) -> str:
+    """Tool output reaches prompts and LESSONS.md; colour escapes there are pure noise."""
+    return ANSI.sub("", text)
+
+
 @dataclass
 class ToolResult:
     ok: bool
@@ -39,7 +48,7 @@ def run_tool(argv: list[str], cwd: Path, timeout: int, env: dict[str, str] | Non
     t0 = time.monotonic()
     try:
         cp = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, check=False, timeout=timeout, env=env)
-        out = (cp.stdout + ("\n" + cp.stderr if cp.stderr else "")).strip()
+        out = strip_ansi((cp.stdout + ("\n" + cp.stderr if cp.stderr else "")).strip())
         return ToolResult(cp.returncode == 0, out, time.monotonic() - t0)
     except subprocess.TimeoutExpired:
         return ToolResult(False, f"TIMEOUT after {timeout}s: {' '.join(map(str, argv))}", time.monotonic() - t0)
