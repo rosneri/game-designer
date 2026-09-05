@@ -24,3 +24,22 @@ Appended by `generator learn <run>` after each batch. One bullet per lesson. New
 - [passed] fence: 32/50 weakest=fun (6/10); verdict=iterate; note: 3p/4p seat win rates are uneven (0.257-0.413 in 3p), suggesting seat-order advantage needs fixing, e.g. rotate priority or randomize resolut
 - [gauntlet] undercroft: failed with `s2_playable: FAIL reason=n=2: exceeded max_turns=1500; n=2: exceeded max_turns=1500; n=2: exceeded max_turns=1500; n=3: `; fix worked: rules.py
 - [passed] undercroft: 31/50 weakest=depth (5/10); verdict=iterate; note: 3-seat/4-seat win rates show notable seat-order advantage for seat 1 and later seats over seat 2/3; tune turn order or add catch-up mechanic
+- [batch] failures by stage: gauntlet=5, tests=2
+- [batch] 10 judged, mean total 32.1/50; weakest dims: fun=7, depth=3; greedy max win rate median 0.97; legal actions/turn median 8.8
+- [passed] millwright: 31/50 weakest=fun (6/10); verdict=iterate; note: Skill test is too weak vs greedy (89-100% win rate) — the game needs meaningful counterplay or bluffing around the hidden stockroom to rewar
+- [tests] oubliette: failed with `1 failed, 30 passed in 0.85s`; fix worked: test_rules.py, spec.json
+- [passed] oubliette: 31/50 weakest=fun (6/10); verdict=iterate; note: Clarify hand-limit interactions with rest/loot/scar so edge cases (deck near empty, hand near full) aren't ambiguous to players at the table
+- [passed] mutiny: 32/50 weakest=depth (5/10); verdict=iterate; note: Est. 32-50 min for a simple shedding game is too long; tighten deck size or hand sizes to speed rounds
+- [gauntlet] watchfire: failed with `s4_skill: FAIL reason=n=4: greedy win rate 0.28 <= 0.35 (no skill) metrics={"p2": {"greedy_win_rate": 0.983, "mcts_win_r`; fix worked: rules.py, spec.json, test_rules.py
+- [passed] watchfire: 32/50 weakest=fun (6/10); verdict=iterate; note: p4 greedy_win_rate of 0.483 suggests greedy play barely beats random at 4p, meaning skillful decisions matter less there; tune bot heuristic
+- [tests] open-outcry: failed with `1 failed in 0.99s`; fix worked: test_rules.py
+- [passed] open-outcry: 33/50 weakest=depth (5/10); verdict=iterate; note: Greedy bots win 84-99% of the time, meaning simple heuristics dominate and deep strategy rarely matters; rework scoring incentives or add mo
+- [passed] bindle: 32/50 weakest=depth (5/10); verdict=iterate; note: Game is too long (28-29 min, ~69 turns) for its depth; trim deck size or speed up scoring to tighten pacing
+- [gauntlet] crossgrain: failed with `s4_skill: FAIL reason=n=3: greedy win rate 0.39 <= 0.43 (no skill); n=4: greedy win rate 0.24 <= 0.35 (no skill) metrics`; fix worked: rules.py, spec.json
+- [passed] crossgrain: 34/50 weakest=fun (6/10); verdict=iterate; note: 4-player balance is skewed (seat 0 wins 31% vs seat 1/2 near 22%); investigate leader/seat-order advantage and consider rotating deal or sco
+- [gauntlet] lamplighter: failed with `s4_skill: FAIL reason=greedy win rate >= 0.97 at every player count (no luck) metrics={"p2": {"greedy_win_rate": 1.0, "m`; fix worked: rules.py, spec.json
+- [passed] lamplighter: 32/50 weakest=fun (6/10); verdict=iterate; note: Rank-match auto-win against greedy AI (90%+) suggests the risk/reward of certain-knowledge claims is too dominant; rebalance payout or add a
+- [passed] ransom: 32/50 weakest=fun (6/10); verdict=iterate; note: Clarify how the Warden's private Hostage peek is used strategically—right now it mostly just informs the Warden with no way to leverage it d
+- [gauntlet] furlong: failed with `s4_skill: FAIL reason=n=4: greedy win rate 0.34 <= 0.35 (no skill) metrics={"p2": {"greedy_win_rate": 0.708, "mcts_win_r`; fix FAILED: rules.py, test_rules.py
+- [gauntlet] furlong: failed with `s6_length: FAIL reason=estimated 46-58 min does not overlap [8, 35] metrics={"minutes_per_turn": 0.451, "p2": {"mean_tur`; fix worked: rules.py, spec.json
+- [passed] furlong: 32/50 weakest=fun (6/10); verdict=iterate; note: 3p/4p balance skews toward seat order (win rates 0.22-0.38 in s3); rework recycling or start-order rotation to equalize seats
