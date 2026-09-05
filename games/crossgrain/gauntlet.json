@@ -1,0 +1,167 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea07/workspace/games/crossgrain",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 17.32,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "crossgrain",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.003
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 104,
+          "max_turns": 104,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 156,
+          "max_turns": 156,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 208,
+          "max_turns": 208,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.847
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.497,
+            0.503
+          ],
+          "draw_rate": 0.027
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.318,
+            0.312,
+            0.37
+          ],
+          "draw_rate": 0.023
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.312,
+            0.223,
+            0.227,
+            0.238
+          ],
+          "draw_rate": 0.05
+        }
+      },
+      "reason": "",
+      "seconds": 4.312
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.725,
+          "mcts_win_rate": 0.667
+        },
+        "p3": {
+          "greedy_win_rate": 0.588
+        },
+        "p4": {
+          "greedy_win_rate": 0.532
+        }
+      },
+      "reason": "",
+      "seconds": 12.146
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 4.15,
+        "forced_share": 0.208,
+        "turns_sampled": 14040
+      },
+      "reason": "",
+      "seconds": 0.003
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.305,
+        "p2": {
+          "mean_turns": 104,
+          "est_minutes": 31.8
+        },
+        "p3": {
+          "mean_turns": 156,
+          "est_minutes": 47.6
+        },
+        "p4": {
+          "mean_turns": 208,
+          "est_minutes": 63.5
+        },
+        "est_minutes_range": [
+          31.8,
+          63.5
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:card-game",
+          "mech:end-game-bonuses",
+          "mech:hand-management",
+          "mech:trick-taking",
+          "order:clockwise"
+        ],
+        "nearest": "sidestep",
+        "similarity": 0.538
+      },
+      "reason": "",
+      "seconds": 0.005
+    }
+  ]
+}

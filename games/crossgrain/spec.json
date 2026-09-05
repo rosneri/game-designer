@@ -1,0 +1,32 @@
+{
+  "slug": "crossgrain",
+  "name": "Crossgrain",
+  "tagline": "Trick-taking where the suit you must follow can swing mid-trick.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trick-taking",
+    "hand-management",
+    "end-game-bonuses",
+    "card-game"
+  ],
+  "core_loop": "Follow the current suit or cut by matching the previous card's rank to swing the suit; the highest live card holds the 1-point grain token, and when the trick closes its holder wins and scores one more point per extra live card.",
+  "win_condition": "Most points after the fixed number of hands (trick points plus a 3-point most-tricks bonus each hand); ties broken by tricks won, then most recent trick won, then lowest seat.",
+  "est_minutes": [
+    20,
+    35
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
