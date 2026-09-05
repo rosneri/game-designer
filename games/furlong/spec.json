@@ -1,0 +1,33 @@
+{
+  "slug": "furlong",
+  "name": "Furlong",
+  "tagline": "A horse race on a course the field builds one card at a time.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "race",
+    "track-movement",
+    "hand-management",
+    "dice-rolling",
+    "take-that"
+  ],
+  "core_loop": "Roll the going die for reach, then stride to a matching slot ahead, lay the next slot of track from hand, or draw.",
+  "win_condition": "Furthest along the track when a racer crosses the finish at 11 and the round is completed.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

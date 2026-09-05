@@ -1,0 +1,168 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea08/workspace/games/furlong",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 26.09,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "furlong",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.005
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 37.8,
+          "max_turns": 52,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 49.6,
+          "max_turns": 78,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 55.3,
+          "max_turns": 104,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.261
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.5,
+            0.5
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.36,
+            0.377,
+            0.263
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.223,
+            0.223,
+            0.263,
+            0.29
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 6.637
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.883,
+          "mcts_win_rate": 0.667
+        },
+        "p3": {
+          "greedy_win_rate": 0.75
+        },
+        "p4": {
+          "greedy_win_rate": 0.8
+        }
+      },
+      "reason": "",
+      "seconds": 18.179
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 11.44,
+        "forced_share": 0.0,
+        "turns_sampled": 4282
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.452,
+        "p2": {
+          "mean_turns": 37.8,
+          "est_minutes": 17.1
+        },
+        "p3": {
+          "mean_turns": 49.6,
+          "est_minutes": 22.4
+        },
+        "p4": {
+          "mean_turns": 55.3,
+          "est_minutes": 25.0
+        },
+        "est_minutes_range": [
+          17.1,
+          25.0
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:dice-rolling",
+          "mech:hand-management",
+          "mech:race",
+          "mech:take-that",
+          "mech:track-movement",
+          "order:clockwise"
+        ],
+        "nearest": "undercroft",
+        "similarity": 0.571
+      },
+      "reason": "",
+      "seconds": 0.005
+    }
+  ]
+}
