@@ -1,0 +1,33 @@
+{
+  "slug": "watchfire",
+  "name": "Watchfire",
+  "tagline": "Keep four braziers blazing through the night — unless you are the Saboteur.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "hidden-roles",
+    "semi-cooperative-game",
+    "hand-management",
+    "push-your-luck",
+    "area-majority"
+  ],
+  "core_loop": "Play one card to Feed a brazier with a higher card of its suit, Rake a low card under the top and roll the die to steal it, or Stash it for face value; then draw.",
+  "win_condition": "Highest total of stashed card ranks plus brazier awards: each of the four braziers pays 2.5 x player count to every Keeper if its top is blazing (rank 10+), or to the Saboteur alone if it is not.",
+  "est_minutes": [
+    20,
+    25
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
