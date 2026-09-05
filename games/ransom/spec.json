@@ -1,0 +1,33 @@
+{
+  "slug": "ransom",
+  "name": "Ransom",
+  "tagline": "Bid cards for a face-up Lot and a hostage only the Warden has seen.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "auction-bidding",
+    "simultaneous-action-selection",
+    "hand-management",
+    "set-collection",
+    "hidden-victory-points"
+  ],
+  "core_loop": "Secretly commit one card as an opening bid, then optionally raise in rotating order; the top bid vaults the Lot and the hidden Hostage while every loser's bid becomes the next Lot.",
+  "win_condition": "Most points when the draw pile and all hands are empty; vaulted cards of your secret Warrant suit score their rank, all others score 2.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "simultaneous"
+}

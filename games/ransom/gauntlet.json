@@ -1,0 +1,168 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea09/workspace/games/ransom",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 20.95,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "ransom",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.003
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 41.0,
+          "max_turns": 47,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 46.2,
+          "max_turns": 52,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 49.1,
+          "max_turns": 56,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.101
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.427,
+            0.573
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.31,
+            0.357,
+            0.333
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.22,
+            0.243,
+            0.263,
+            0.273
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 5.531
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.617,
+          "mcts_win_rate": 0.833
+        },
+        "p3": {
+          "greedy_win_rate": 0.458
+        },
+        "p4": {
+          "greedy_win_rate": 0.383
+        }
+      },
+      "reason": "",
+      "seconds": 14.31
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 3.48,
+        "forced_share": 0.163,
+        "turns_sampled": 4086
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.28,
+        "p2": {
+          "mean_turns": 41.0,
+          "est_minutes": 11.5
+        },
+        "p3": {
+          "mean_turns": 46.2,
+          "est_minutes": 12.9
+        },
+        "p4": {
+          "mean_turns": 49.1,
+          "est_minutes": 13.7
+        },
+        "est_minutes_range": [
+          11.5,
+          13.7
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:auction-bidding",
+          "mech:hand-management",
+          "mech:hidden-victory-points",
+          "mech:set-collection",
+          "mech:simultaneous-action-selection",
+          "order:simultaneous"
+        ],
+        "nearest": "fence",
+        "similarity": 0.75
+      },
+      "reason": "",
+      "seconds": 0.006
+    }
+  ]
+}
