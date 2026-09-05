@@ -22,6 +22,7 @@ class GauntletConfig(BaseModel):
     skill_games: int = 120
     skill_margin: float = 0.10          # greedy win rate must exceed 1/n + margin
     skill_max_winrate: float = 0.97     # ... and stay below this (luck exists)
+    max_skill_dominance: float = 0.85   # mean over player counts of (rate - 1/n) / (1 - 1/n)
     greedy_samples: int = 3
     mcts_games: int = 6                 # informational only (never fails); MCTS is slow on long games
     mcts_sims: int = 20

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 from gd_gauntlet import STAGES, GauntletConfig, GauntletResult, find_config_file, run_gauntlet
-from gd_gauntlet.stages import fingerprint, jaccard
+from gd_gauntlet.stages import dominance, fingerprint, jaccard
 
 DUMMY = Path(__file__).parent / "dummy_game"
 FAST = GauntletConfig(playable_games=4, balance_games=60, skill_games=40, mcts_games=1, mcts_sims=5)
@@ -27,8 +27,24 @@ def test_dummy_passes_fast_config():
     assert r.failed_stage is None and r.summary().startswith("PASS")
     d = r.to_dict()
     assert d["passed"] and len(d["stages"]) == 8
-    assert d["stages"][4]["metrics"]["p2"]["greedy_win_rate"] > 0.6
+    s4 = d["stages"][4]["metrics"]
+    assert s4["p2"]["greedy_win_rate"] > 0.6
+    assert 0.0 < s4["p2"]["dominance"] <= 1.0 and 0.0 < s4["skill_dominance"] <= 1.0
     json.dumps(d)  # serialisable
+
+
+def test_dominance_scale():
+    assert dominance(0.5, 2) == 0.0 and dominance(1.0, 2) == 1.0
+    assert dominance(0.25, 4) == 0.0 and round(dominance(0.625, 4), 3) == 0.5
+
+
+def test_greedy_treadmill_fails_s4():
+    """The dummy game is a pure 'play the highest-scoring card' treadmill: a tight cap must reject it."""
+    cfg = FAST.model_copy(update={"max_skill_dominance": 0.2})
+    r = run_gauntlet(DUMMY, cfg, stop_on_fail=False)
+    s4 = next(s for s in r.stages if s.name == "s4_skill")
+    assert not s4.passed and "greedy dominance" in s4.reason
+    assert s4.metrics["skill_dominance"] > 0.2
 
 
 @pytest.mark.skipif(not os.environ.get("GD_SLOW"), reason="set GD_SLOW=1 for the full default gauntlet")

@@ -163,10 +163,17 @@ def s3_balance(ctx: Context) -> StageResult:
     return StageResult("s3_balance", not reasons, metrics, "; ".join(reasons))
 
 
+def dominance(rate: float, n: int) -> float:
+    """Greedy's edge over random on a per-player-count scale: 0.0 = random-level, 1.0 = wins every game."""
+    base = 1 / n
+    return (rate - base) / (1 - base)
+
+
 def s4_skill(ctx: Context) -> StageResult:
     metrics: dict[str, Any] = {}
     reasons = []
     rates: list[float] = []
+    doms: list[float] = []
 
     def hero_rate(n: int, hero, k: int, tag: int) -> float | None:
         def agents(i: int) -> list:
@@ -189,11 +196,25 @@ def s4_skill(ctx: Context) -> StageResult:
         if rate <= need:
             reasons.append(f"n={n}: greedy win rate {rate:.2f} <= {need:.2f} (no skill)")
         rates.append(rate)
+        d = dominance(rate, n)
+        metrics[f"p{n}"]["dominance"] = round(d, 3)
+        doms.append(d)
     # Luck check: the greedy agent sees the full state (it can peek at hidden info), so a
     # perfect record at 2 players is common in hidden-information games. We only require that
     # luck shows up at SOME player count.
     if rates and min(rates) >= ctx.cfg.skill_max_winrate:
         reasons.append(f"greedy win rate >= {ctx.cfg.skill_max_winrate} at every player count (no luck)")
+    # Dominance check: a 1-ply "grab the most points right now" bot should NOT crush random play at
+    # every seat count. When it does, the game is a scoring treadmill with no counterplay.
+    if doms:
+        md = mean(doms)
+        metrics["skill_dominance"] = round(md, 3)
+        if md > ctx.cfg.max_skill_dominance:
+            reasons.append(
+                f"greedy dominance {md:.2f} > {ctx.cfg.max_skill_dominance} (per-count {[round(x, 2) for x in doms]}): "
+                "a 1-ply score-greedy bot beats random almost always, so the game rewards no planning. "
+                "Add counterplay against the leader, delayed/hidden scoring, or costs that make the "
+                "immediate-points action wrong sometimes")
     if ctx.cfg.mcts_games > 0:
         n0 = ctx.counts()[0]
         mr = hero_rate(n0, MCTSAgent(ctx.cfg.mcts_sims, max_rollout=ctx.cfg.mcts_rollout), ctx.cfg.mcts_games, tag=44)
@@ -294,4 +315,4 @@ def run_stage(fn: Callable[[Context], StageResult], ctx: Context) -> StageResult
     return res
 
 
-__all__ = ["STAGES", "Context", "StageResult", "fingerprint", "jaccard", "run_stage"]
+__all__ = ["STAGES", "Context", "StageResult", "dominance", "fingerprint", "jaccard", "run_stage"]
