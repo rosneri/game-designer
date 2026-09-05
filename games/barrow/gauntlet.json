@@ -1,0 +1,173 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/three/idea00/workspace/games/barrow",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 15.77,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "barrow",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 27.3,
+          "max_turns": 30,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 30.2,
+          "max_turns": 33,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 33.5,
+          "max_turns": 36,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.582
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.54,
+            0.46
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.387,
+            0.313,
+            0.3
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.213,
+            0.273,
+            0.253,
+            0.26
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 3.171
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.883,
+          "dominance": 0.767,
+          "mcts_win_rate": 1.0
+        },
+        "p3": {
+          "greedy_win_rate": 0.758,
+          "dominance": 0.637
+        },
+        "p4": {
+          "greedy_win_rate": 0.675,
+          "dominance": 0.567
+        },
+        "skill_dominance": 0.657
+      },
+      "reason": "",
+      "seconds": 12.012
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 9.87,
+        "forced_share": 0.005,
+        "turns_sampled": 2730
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.43,
+        "p2": {
+          "mean_turns": 27.3,
+          "est_minutes": 11.8
+        },
+        "p3": {
+          "mean_turns": 30.2,
+          "est_minutes": 13.0
+        },
+        "p4": {
+          "mean_turns": 33.5,
+          "est_minutes": 14.4
+        },
+        "est_minutes_range": [
+          11.8,
+          14.4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:card-play-conflict-resolution",
+          "mech:dice-rolling",
+          "mech:fantasy",
+          "mech:hand-management",
+          "mech:push-your-luck",
+          "mech:set-collection",
+          "order:clockwise"
+        ],
+        "nearest": "undercroft",
+        "similarity": 0.769
+      },
+      "reason": "",
+      "seconds": 0.006
+    }
+  ]
+}

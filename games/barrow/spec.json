@@ -1,0 +1,34 @@
+{
+  "slug": "barrow",
+  "name": "Barrow",
+  "tagline": "Raid a torchlit hall: swing at monsters, grab the loot, hide your winnings.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "dice-rolling",
+    "hand-management",
+    "card-play-conflict-resolution",
+    "set-collection",
+    "push-your-luck",
+    "fantasy"
+  ],
+  "core_loop": "Reveal one card into the six-card hall, then take one action: grab red loot, fight a black monster with a hand card and the die, stash a card face down for points, or forage from the barrow deck.",
+  "win_condition": "Highest total rank in your face-down lair (plus 5 per matched spade/club rank pair) when the barrow deck runs out.",
+  "est_minutes": [
+    12,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
