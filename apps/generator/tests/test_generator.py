@@ -115,6 +115,18 @@ def test_backend_argv_and_env(monkeypatch):
     assert "ANTHROPIC_API_KEY" not in cc.env() and "ANTHROPIC_API_KEY" in pa.env()
 
 
+def test_timeouts_are_infra_but_not_retried(cfg, monkeypatch):
+    from gd_generator.backends import is_retryable
+    assert is_infra_error("TIMEOUT after 900s") and not is_retryable("TIMEOUT after 900s")
+    assert is_retryable("Provider rejected the request (rate_limit_error, 429)")
+    calls = []
+    monkeypatch.setattr("gd_generator.backends.run_backend",
+                        lambda b, req: calls.append(1) or __import__("gd_generator.backends", fromlist=["x"]).LLMResult(
+                            "", "TIMEOUT after 5s", -1, 0.0, [], backend=b.name))
+    r = LLMClient(cfg).call("judge", "x")
+    assert not r.ok and r.infra and not r.retryable and len(calls) == 1
+
+
 def test_llm_client_uses_stub_and_retries_infra(cfg, monkeypatch, tmp_path):
     client = LLMClient(cfg)
     r = client.call("judge", "Reply PONG")
@@ -188,7 +200,11 @@ def test_happy_path_isolated_then_promoted(cfg, tmp_path):
     assert (g / "rules.py").exists() and (g / "spec.json").exists() and (g / "test_rules.py").exists() and (g / "gauntlet.json").exists()
     assert json.loads((g / "spec.json").read_text())["slug"] == "stub-duel"
     code_prompt = (idea / "code.prompt.md").read_text()
-    assert "class Game(Protocol)" in code_prompt and str(ws_game) in code_prompt
+    assert "class Game(Protocol)" in code_prompt
+    # the coding agent's cwd is its workspace, so every command argument it is given must be absolute
+    assert str(ws_game.resolve()) in code_prompt
+    cmd = next(l for l in code_prompt.splitlines() if "runner validate" in l)
+    assert cmd.split("runner validate ")[1].split("`")[0] == str(ws_game.resolve())
     # run-level artefacts
     m = json.loads((run_dir / "manifest.json").read_text())
     assert m["n"] == 1 and "idea.md" in m["prompt_hashes"] and m["config"]["steps"]["idea"]["backend"] == "claude"

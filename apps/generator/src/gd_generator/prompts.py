@@ -172,6 +172,7 @@ class Prompts:
 
     def tool_cmds(self, slug: str, game_dir: Path) -> dict[str, str]:
         proj = f"uv run --project {self.root}"
+        game_dir = Path(game_dir).resolve()
         return {"game_dir": str(game_dir), "validate_cmd": f"{proj} runner validate {game_dir}",
                 "sim_cmd": f"{proj} runner sim {game_dir} --players N --games 60 --agents greedy,random",
                 "gauntlet_cmd": f"{proj} runner gauntlet {game_dir}"}

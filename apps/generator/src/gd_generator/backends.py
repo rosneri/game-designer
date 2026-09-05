@@ -25,6 +25,11 @@ def is_infra_error(text: str) -> bool:
     return any(p.lower() in t for p in INFRA_PATTERNS)
 
 
+def is_retryable(text: str) -> bool:
+    """Infra errors worth another attempt. A timeout is not: the same prompt would burn the same wall clock."""
+    return is_infra_error(text) and "timeout after" not in (text or "").lower()
+
+
 @dataclass
 class LLMRequest:
     prompt: str
@@ -54,6 +59,10 @@ class LLMResult:
     @property
     def infra(self) -> bool:
         return not self.ok and is_infra_error(self.stderr)
+
+    @property
+    def retryable(self) -> bool:
+        return not self.ok and is_retryable(self.stderr)
 
 
 class Backend(Protocol):
@@ -146,7 +155,7 @@ class LLMClient:
         t0 = time.monotonic()
         while True:
             res = run_backend(backend, req)
-            if res.ok or not res.infra or attempt >= self.cfg.llm_retries or res.returncode == -2:
+            if res.ok or not res.retryable or attempt >= self.cfg.llm_retries or res.returncode == -2:
                 res.retries, res.seconds = attempt, time.monotonic() - t0
                 return res
             attempt += 1

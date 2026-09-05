@@ -30,7 +30,8 @@ from .workspace import Snapshot, Workspace, git_sha
 
 class Batch:
     def __init__(self, cfg: GeneratorConfig, run_dir: Path, n: int, seed: int, resume: bool = False):
-        self.cfg, self.run_dir, self.n, self.seed, self.resume = cfg, Path(run_dir), n, seed, resume
+        # absolute: the coding agent works from its own workspace, so every path we hand it must resolve there
+        self.cfg, self.run_dir, self.n, self.seed, self.resume = cfg, Path(run_dir).resolve(), n, seed, resume
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.snap = Snapshot.take(cfg, self.run_dir)
         self.harness = Harness(cfg.harness_file)
