@@ -1,0 +1,170 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea00/workspace/games/oubliette",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 16.99,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "oubliette",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 48.8,
+          "max_turns": 58,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 49.6,
+          "max_turns": 60,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 47.7,
+          "max_turns": 56,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.477
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.52,
+            0.48
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.35,
+            0.33,
+            0.32
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.253,
+            0.28,
+            0.247,
+            0.22
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 2.69
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.758,
+          "mcts_win_rate": 0.833
+        },
+        "p3": {
+          "greedy_win_rate": 0.6
+        },
+        "p4": {
+          "greedy_win_rate": 0.592
+        }
+      },
+      "reason": "",
+      "seconds": 13.81
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 12.05,
+        "forced_share": 0.0,
+        "turns_sampled": 4384
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.459,
+        "p2": {
+          "mean_turns": 48.8,
+          "est_minutes": 22.4
+        },
+        "p3": {
+          "mean_turns": 49.6,
+          "est_minutes": 22.8
+        },
+        "p4": {
+          "mean_turns": 47.7,
+          "est_minutes": 21.9
+        },
+        "est_minutes_range": [
+          21.9,
+          22.8
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:catch-up-mechanism",
+          "mech:dice-rolling",
+          "mech:hand-management",
+          "mech:open-drafting",
+          "mech:order-manipulation",
+          "mech:push-your-luck",
+          "mech:set-collection",
+          "order:clockwise"
+        ],
+        "nearest": "undercroft",
+        "similarity": 0.714
+      },
+      "reason": "",
+      "seconds": 0.004
+    }
+  ]
+}

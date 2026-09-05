@@ -1,0 +1,35 @@
+{
+  "slug": "oubliette",
+  "name": "Oubliette",
+  "tagline": "Fight down a four-card corridor; only the loot in your lair counts.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "hand-management",
+    "set-collection",
+    "dice-rolling",
+    "open-drafting",
+    "push-your-luck",
+    "catch-up-mechanism",
+    "order-manipulation"
+  ],
+  "core_loop": "On your turn slay a corridor monster with one hand card and a die roll, loot unguarded gold, bank a card into your lair for points, rest to draw, or scout to reorder the corridor.",
+  "win_condition": "Highest lair score (trophies, banked gold, pair bonuses, minus scars) when the dungeon deck runs dry and the final round ends.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
