@@ -1,0 +1,33 @@
+{
+  "slug": "undertow",
+  "name": "Undertow",
+  "tagline": "Pull treasure from the deep until the tide turns on you.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "push-your-luck",
+    "shared-hazard",
+    "take-that",
+    "card-counting",
+    "tableau-building"
+  ],
+  "core_loop": "Draw cards one at a time into your face-up Haul, or salvage from the Wreck; matching the shared Undertow rank or a rank you already hold wipes your Haul; bank to make points safe and claim the Undertow.",
+  "win_condition": "Most points in Hold plus Haul when the deck runs out.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": false,
+  "turn_order": "clockwise"
+}

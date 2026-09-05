@@ -1,0 +1,32 @@
+{
+  "slug": "sidestep",
+  "name": "Sidestep",
+  "tagline": "A no-trump trick game where the suit you must follow can change mid-trick.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 2,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trick-taking",
+    "void-management",
+    "set-collection",
+    "hand-management"
+  ],
+  "core_loop": "Follow the current target suit if you can; if you are void, throw any card and a higher one steals the trick and makes its suit the new target suit for the players after you.",
+  "win_condition": "Highest score from card values captured in tricks (Crown rank 3, Ace 2, K/Q/J 1) plus +1 for each trick won with a sidestep card.",
+  "est_minutes": [
+    15,
+    25
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

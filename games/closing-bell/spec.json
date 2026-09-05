@@ -1,0 +1,34 @@
+{
+  "slug": "closing-bell",
+  "name": "Closing Bell",
+  "tagline": "Four suits, four stocks: pump, crash, and cash out before the bell.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 2,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "market-manipulation",
+    "portfolio-building",
+    "hand-management",
+    "push-your-luck",
+    "take-that",
+    "tableau-building"
+  ],
+  "core_loop": "On your turn play one card to a market pile to set that suit's price, or into your portfolio as a share, or sell a share to bank the top price card; then refill to four.",
+  "win_condition": "Highest wealth (banked vault ranks + current price of every share + closing-bell die bonus) when the deck and all hands are empty.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

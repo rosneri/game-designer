@@ -1,0 +1,30 @@
+{
+  "slug": "weathervane",
+  "name": "Weathervane",
+  "tagline": "A die names the trump every trick; no suit to follow, only choices.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trick-taking",
+    "dice-driven-trump",
+    "hand-management",
+    "tempo-control",
+    "set-collection"
+  ],
+  "core_loop": "The trick winner rolls one die to set trump (or Calm, or a doubling Gale), then leads or passes the lead; everyone plays any card, and the winner scores one point per card plus one per trump immediately.",
+  "win_condition": "Most points after every hand is empty; ties break on tricks won, then latest trick won.",
+  "est_minutes": [18, 26],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

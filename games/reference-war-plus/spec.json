@@ -1,0 +1,31 @@
+{
+  "slug": "reference-war-plus",
+  "name": "War Plus",
+  "tagline": "War, but you choose which card to commit.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 2,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trick-taking",
+    "hidden-choice",
+    "hand-management"
+  ],
+  "core_loop": "Each player secretly commits one card from a 5-card hand; highest card takes the trick; everyone draws back up.",
+  "win_condition": "Most tricks when the deck and all hands are exhausted.",
+  "est_minutes": [
+    10,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "simultaneous"
+}

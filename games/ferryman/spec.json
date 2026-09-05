@@ -1,0 +1,34 @@
+{
+  "slug": "ferryman",
+  "name": "Ferryman",
+  "tagline": "Every card in hand is a coin; every card on the Dock is a passenger.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "hand-management",
+    "card-economy",
+    "market-row",
+    "set-collection",
+    "dice-modifier",
+    "hand-limit"
+  ],
+  "core_loop": "On your turn ferry a Dock passenger by paying an equal-or-higher (or buoyant) hand card onto the shared Toll pile, or spend the turn wading a toll card or drawing.",
+  "win_condition": "Most points from ferried passengers, kin-fare bonuses and suit majorities, minus one per card left in hand.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

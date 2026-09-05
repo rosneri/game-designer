@@ -1,0 +1,33 @@
+{
+  "slug": "loom",
+  "name": "Loom",
+  "tagline": "Weave a 3x3 grid of drafted cards; every row, column and diagonal is a poker thread.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "drafting",
+    "pattern-building",
+    "tableau-building",
+    "hand-management",
+    "hidden-information"
+  ],
+  "core_loop": "Each round a shared market of P+1 face-up cards is revealed; in clockwise order every player takes a turn of three decisions: draw one market card, announce whether they will weave that drawn card face-up or bury their hidden hand card face-down, then place the chosen card in an empty cell of their 3x3 weave.",
+  "win_condition": "After 9 rounds every grid is full and all face-down cards are revealed; score the 8 threads (3 rows, 3 columns, 2 diagonals) as mini poker hands and the highest total wins.",
+  "est_minutes": [
+    10,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

@@ -1,0 +1,34 @@
+{
+  "slug": "switchback",
+  "name": "Switchback",
+  "tagline": "A climbing game where every card you lay down scores at once.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "climbing",
+    "ranked-combinations",
+    "shedding",
+    "hand-management",
+    "hidden-information",
+    "tempo-control"
+  ],
+  "core_loop": "A leader opens an ascent with a combination; followers beat it with the same shape or pass to draw a card; every play scores immediately, tight steps and ascent wins pay bonuses.",
+  "win_condition": "Highest total when a player empties their hand with the stock exhausted; leftover cards cost 1 point each.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "variable"
+}

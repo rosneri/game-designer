@@ -1,0 +1,35 @@
+{
+  "slug": "dead-drop",
+  "name": "Dead Drop",
+  "tagline": "Blind swaps at three shared drops; fill eight ledger slots, then the cipher pays out.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "blind-swap",
+    "memory",
+    "tableau-building",
+    "hand-management",
+    "set-collection",
+    "hidden-information",
+    "push-your-luck"
+  ],
+  "core_loop": "Optionally swap one hand card blind with a centre drop or with a rival, then place a card on either end of your eight-slot ledger and score how well it matches its new neighbour.",
+  "win_condition": "Most points after eight rounds, counting placement points plus the cipher payout on your ledger; ties break on ledger rank sum, then later seat.",
+  "est_minutes": [
+    10,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

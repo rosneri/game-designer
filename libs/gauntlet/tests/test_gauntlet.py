@@ -1,0 +1,115 @@
+import json
+import os
+import shutil
+from pathlib import Path
+
+import pytest
+from gd_gauntlet import STAGES, GauntletConfig, GauntletResult, find_config_file, run_gauntlet
+from gd_gauntlet.stages import fingerprint, jaccard
+
+DUMMY = Path(__file__).parent / "dummy_game"
+FAST = GauntletConfig(playable_games=4, balance_games=60, skill_games=40, mcts_games=1, mcts_sims=5)
+
+
+def copy_game(tmp: Path, slug: str, **spec_overrides) -> Path:
+    d = tmp / slug
+    d.mkdir()
+    shutil.copy(DUMMY / "rules.py", d / "rules.py")
+    spec = json.loads((DUMMY / "spec.json").read_text()) | {"slug": slug} | spec_overrides
+    (d / "spec.json").write_text(json.dumps(spec))
+    return d
+
+
+def test_dummy_passes_fast_config():
+    r = run_gauntlet(DUMMY, FAST)
+    assert r.passed, r.summary()
+    assert [s.name for s in r.stages] == [f.__name__ for f in STAGES]
+    assert r.failed_stage is None and r.summary().startswith("PASS")
+    d = r.to_dict()
+    assert d["passed"] and len(d["stages"]) == 8
+    assert d["stages"][4]["metrics"]["p2"]["greedy_win_rate"] > 0.6
+    json.dumps(d)  # serialisable
+
+
+@pytest.mark.skipif(not os.environ.get("GD_SLOW"), reason="set GD_SLOW=1 for the full default gauntlet")
+def test_dummy_passes_default_config():
+    r = run_gauntlet(DUMMY, GauntletConfig())
+    assert r.passed, r.summary()
+    assert r.seconds < 90
+
+
+def test_deterministic():
+    a, b = run_gauntlet(DUMMY, FAST).to_dict(), run_gauntlet(DUMMY, FAST).to_dict()
+    for d in (a, b, *a["stages"], *b["stages"]):
+        d.pop("seconds")
+    assert a == b
+
+
+def test_missing_spec_fails_s0(tmp_path):
+    r = run_gauntlet(tmp_path, FAST)
+    assert not r.passed and r.failed_stage == "s0_schema" and "FAIL" in r.summary()
+
+
+def test_bad_spec_and_bad_rules(tmp_path):
+    d = copy_game(tmp_path, "bad-spec")
+    (d / "spec.json").write_text('{"slug": "x"}')
+    assert run_gauntlet(d, FAST).failed_stage == "s0_schema"
+    d2 = copy_game(tmp_path, "bad-rules")
+    (d2 / "rules.py").write_text("x = 1\n")
+    r = run_gauntlet(d2, FAST, stop_on_fail=False)
+    assert r.failed_stage == "s1_import" and len(r.stages) == 2  # cannot continue without GAME
+
+
+def test_broken_step_fails_s2(tmp_path):
+    d = copy_game(tmp_path, "broken-step")
+    src = (d / "rules.py").read_text().replace("s.turn += 1", "s.turn += 1\n        if s.turn > 5: raise RuntimeError('boom')")
+    (d / "rules.py").write_text(src)
+    r = run_gauntlet(d, FAST)
+    assert r.failed_stage == "s2_playable" and "boom" in r.stages[-1].reason
+    assert r.stages[-1].metrics["p2"]["error_rate"] == 1.0
+
+
+def test_stop_on_fail_false_runs_all(tmp_path):
+    d = copy_game(tmp_path, "short-game")
+    src = (d / "rules.py").read_text().replace("ROUNDS = 45", "ROUNDS = 2")
+    (d / "rules.py").write_text(src)
+    r = run_gauntlet(d, FAST, stop_on_fail=False)
+    assert not r.passed and len(r.stages) == 8
+    assert r.failed_stage in ("s3_balance", "s4_skill", "s6_length")
+    assert not next(s for s in r.stages if s.name == "s6_length").passed
+
+
+def test_novelty_against_siblings(tmp_path):
+    a = copy_game(tmp_path, "twin-a")
+    copy_game(tmp_path, "twin-b")
+    copy_game(tmp_path, "far-away", mechanics=["trick-taking", "bidding"], components={"jokers": 2, "dice": 0})
+    r = run_gauntlet(a, FAST, stop_on_fail=False)
+    s7 = r.stages[-1]
+    assert s7.name == "s7_novelty" and not s7.passed
+    assert s7.metrics["nearest"] == "twin-b" and s7.metrics["similarity"] == 1.0
+    assert r.failed_stage == "s7_novelty"
+
+
+def test_fingerprint_jaccard():
+    from gd_gamecore import load_spec
+    s = load_spec(DUMMY)
+    f = fingerprint(s)
+    assert "mech:dice-rolling" in f and jaccard(f, f) == 1.0
+    g = fingerprint(s.model_copy(update={"mechanics": []}))
+    assert 0 < jaccard(f, g) < 1
+
+
+def test_config_toml_override(tmp_path, monkeypatch):
+    (tmp_path / "gauntlet.toml").write_text("[gauntlet]\nbalance_games = 7\nminutes_band = [1.0, 2.0]\n")
+    game = tmp_path / "games" / "g"
+    game.mkdir(parents=True)
+    assert find_config_file(game) == tmp_path / "gauntlet.toml"
+    cfg = GauntletConfig.load(game)
+    assert cfg.balance_games == 7 and cfg.minutes_band == (1.0, 2.0) and cfg.skill_games == GauntletConfig().skill_games
+    monkeypatch.chdir(tmp_path)
+    assert GauntletConfig.load().balance_games == 7
+
+
+def test_result_summary_empty():
+    r = GauntletResult("x")
+    assert not r.passed and r.failed_stage is None

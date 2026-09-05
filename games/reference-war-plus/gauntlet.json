@@ -1,0 +1,165 @@
+{
+  "game_dir": "games/reference-war-plus",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 3.82,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "reference-war-plus",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 2,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 108,
+          "max_turns": 108,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 108,
+          "max_turns": 108,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 104,
+          "max_turns": 104,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.737
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.497,
+            0.503
+          ],
+          "draw_rate": 0.007
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.303,
+            0.362,
+            0.335
+          ],
+          "draw_rate": 0.02
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.185,
+            0.275,
+            0.308,
+            0.232
+          ],
+          "draw_rate": 0.013
+        }
+      },
+      "reason": "",
+      "seconds": 0.435
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 1.0,
+          "mcts_win_rate": 0.833
+        },
+        "p3": {
+          "greedy_win_rate": 0.767
+        },
+        "p4": {
+          "greedy_win_rate": 0.583
+        }
+      },
+      "reason": "",
+      "seconds": 2.647
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 4.44,
+        "forced_share": 0.056,
+        "turns_sampled": 9600
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 108,
+          "est_minutes": 10.8
+        },
+        "p3": {
+          "mean_turns": 108,
+          "est_minutes": 10.8
+        },
+        "p4": {
+          "mean_turns": 104,
+          "est_minutes": 10.4
+        },
+        "est_minutes_range": [
+          10.4,
+          10.8
+        ]
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:2",
+          "mech:hand-management",
+          "mech:hidden-choice",
+          "mech:trick-taking",
+          "order:simultaneous"
+        ],
+        "nearest": null,
+        "similarity": 0.0
+      },
+      "reason": "",
+      "seconds": 0.0
+    }
+  ]
+}

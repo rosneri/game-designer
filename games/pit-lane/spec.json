@@ -1,0 +1,33 @@
+{
+  "slug": "pit-lane",
+  "name": "Pit Lane",
+  "tagline": "Race a King down a row of cards; loot the track or sprint for the flag.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "racing",
+    "hand-management",
+    "set-collection",
+    "track-building",
+    "hidden-information"
+  ],
+  "core_loop": "Play a card to drive 1-2 spaces, slipstream past rivals, and pocket the track card it matches by suit or rank; or spend the turn refuelling your hand.",
+  "win_condition": "Highest total of distance points plus pocketed card values when a racer crosses the finish line.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

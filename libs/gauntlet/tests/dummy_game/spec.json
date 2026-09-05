@@ -1,0 +1,21 @@
+{
+  "slug": "dummy-dice-draft",
+  "name": "Dummy Dice Draft",
+  "tagline": "Test fixture game.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 2
+  },
+  "mechanics": [
+    "hand-management",
+    "dice-rolling"
+  ],
+  "core_loop": "Play a card, roll 2d6, score.",
+  "win_condition": "Highest total after all rounds.",
+  "est_minutes": [
+    10,
+    20
+  ]
+}

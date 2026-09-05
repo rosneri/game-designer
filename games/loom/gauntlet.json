@@ -1,0 +1,109 @@
+{
+  "game_dir": "games/loom",
+  "passed": false,
+  "failed_stage": "s4_skill",
+  "seconds": 37.24,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "loom",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 54,
+          "max_turns": 54,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 81,
+          "max_turns": 81,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 108,
+          "max_turns": 108,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 2.01
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.47,
+            0.53
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.393,
+            0.323,
+            0.283
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.273,
+            0.203,
+            0.273,
+            0.25
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 10.251
+    },
+    {
+      "name": "s4_skill",
+      "passed": false,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.617,
+          "mcts_win_rate": 1.0
+        },
+        "p3": {
+          "greedy_win_rate": 0.592
+        },
+        "p4": {
+          "greedy_win_rate": 0.342
+        }
+      },
+      "reason": "n=4: greedy win rate 0.34 <= 0.35 (no skill)",
+      "seconds": 24.979
+    }
+  ]
+}

@@ -1,0 +1,170 @@
+{
+  "game_dir": "games/tumble",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 30.84,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "tumble",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 78,
+          "max_turns": 78,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 70,
+          "max_turns": 70,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 65,
+          "max_turns": 65,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.929
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.5,
+            0.5
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.347,
+            0.403,
+            0.25
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.253,
+            0.257,
+            0.233,
+            0.257
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 4.676
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.983,
+          "mcts_win_rate": 1.0
+        },
+        "p3": {
+          "greedy_win_rate": 0.733
+        },
+        "p4": {
+          "greedy_win_rate": 0.467
+        }
+      },
+      "reason": "",
+      "seconds": 25.228
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 6.76,
+        "forced_share": 0.042,
+        "turns_sampled": 6390
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.376,
+        "p2": {
+          "mean_turns": 78,
+          "est_minutes": 29.3
+        },
+        "p3": {
+          "mean_turns": 70,
+          "est_minutes": 26.3
+        },
+        "p4": {
+          "mean_turns": 65,
+          "est_minutes": 24.4
+        },
+        "est_minutes_range": [
+          24.4,
+          29.3
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:dice-driven-trump",
+          "mech:die-flipping",
+          "mech:draw-and-play",
+          "mech:hand-management",
+          "mech:hidden-information",
+          "mech:no-follow",
+          "mech:trick-taking",
+          "order:clockwise"
+        ],
+        "nearest": "weathervane",
+        "similarity": 0.6
+      },
+      "reason": "",
+      "seconds": 0.004
+    }
+  ]
+}

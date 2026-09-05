@@ -1,0 +1,15 @@
+[project]
+name = "gd-runner"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = ["gd-gamecore", "gd-agents", "gd-gauntlet", "gd-gm", "gd-report"]
+
+[project.scripts]
+runner = "gd_runner.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gd_runner"]

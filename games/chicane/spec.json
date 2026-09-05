@@ -1,0 +1,34 @@
+{
+  "slug": "chicane",
+  "name": "Chicane",
+  "tagline": "Lay the asphalt you drive on: every corner is a card you must out-rank or match.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "racing",
+    "track-building",
+    "hand-management",
+    "dice-movement",
+    "catch-up-turn-order",
+    "hidden-information"
+  ],
+  "core_loop": "Roll the throttle die, then drive one card past as many corners as it can clear, lay a new corner to creep forward, or pit for fresh cards.",
+  "win_condition": "Cross the finish line, or be furthest along the track when the deck runs out a second time.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "variable"
+}

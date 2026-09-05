@@ -1,0 +1,11 @@
+$schema: "https://moonrepo.dev/schemas/tasks.json"
+fileGroups:
+  sources: ["src/**/*.py"]
+  tests: ["tests/**/*.py"]
+tasks:
+  test:
+    command: "uv run --project $workspaceRoot pytest tests -q"
+    inputs: ["@globs(sources)", "@globs(tests)"]
+  lint:
+    command: "uv run --project $workspaceRoot ruff check src tests"
+    inputs: ["@globs(sources)", "@globs(tests)"]

@@ -1,0 +1,169 @@
+{
+  "game_dir": "games/closing-bell",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 45.76,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "closing-bell",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 2,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 69.4,
+          "max_turns": 76,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 70.1,
+          "max_turns": 77,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 70.9,
+          "max_turns": 82,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.368
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.493,
+            0.507
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.313,
+            0.327,
+            0.36
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.237,
+            0.27,
+            0.22,
+            0.273
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 6.874
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.775,
+          "mcts_win_rate": 0.5
+        },
+        "p3": {
+          "greedy_win_rate": 0.6
+        },
+        "p4": {
+          "greedy_win_rate": 0.45
+        }
+      },
+      "reason": "",
+      "seconds": 37.503
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 8.65,
+        "forced_share": 0.02,
+        "turns_sampled": 6314
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.411,
+        "p2": {
+          "mean_turns": 69.4,
+          "est_minutes": 28.5
+        },
+        "p3": {
+          "mean_turns": 70.1,
+          "est_minutes": 28.8
+        },
+        "p4": {
+          "mean_turns": 70.9,
+          "est_minutes": 29.2
+        },
+        "est_minutes_range": [
+          28.5,
+          29.2
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:2",
+          "mech:hand-management",
+          "mech:market-manipulation",
+          "mech:portfolio-building",
+          "mech:push-your-luck",
+          "mech:tableau-building",
+          "mech:take-that",
+          "order:clockwise"
+        ],
+        "nearest": "loom",
+        "similarity": 0.353
+      },
+      "reason": "",
+      "seconds": 0.006
+    }
+  ]
+}

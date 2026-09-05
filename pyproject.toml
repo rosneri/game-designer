@@ -1,0 +1,34 @@
+[project]
+name = "game-designer"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+  "gd-cards", "gd-dice", "gd-gamecore", "gd-gm", "gd-agents", "gd-gauntlet", "gd-report",
+  "gd-runner", "gd-generator",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6", "hypothesis>=6"]
+
+[tool.uv.workspace]
+members = ["libs/*", "apps/*"]
+
+[tool.uv.sources]
+gd-cards = { workspace = true }
+gd-dice = { workspace = true }
+gd-gamecore = { workspace = true }
+gd-gm = { workspace = true }
+gd-agents = { workspace = true }
+gd-gauntlet = { workspace = true }
+gd-report = { workspace = true }
+gd-runner = { workspace = true }
+gd-generator = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = ["libs", "apps", "games"]
+python_files = ["test_*.py"]
+addopts = "--import-mode=importlib"
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"

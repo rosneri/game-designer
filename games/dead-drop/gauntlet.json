@@ -1,0 +1,170 @@
+{
+  "game_dir": "games/dead-drop",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 11.18,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "dead-drop",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 35.6,
+          "max_turns": 38,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 56.8,
+          "max_turns": 61,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 78.1,
+          "max_turns": 86,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.331
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.487,
+            0.513
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.343,
+            0.307,
+            0.35
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.263,
+            0.25,
+            0.257,
+            0.23
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.721
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.667,
+          "mcts_win_rate": 0.833
+        },
+        "p3": {
+          "greedy_win_rate": 0.692
+        },
+        "p4": {
+          "greedy_win_rate": 0.525
+        }
+      },
+      "reason": "",
+      "seconds": 9.121
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 9.88,
+        "forced_share": 0.0,
+        "turns_sampled": 5116
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.43,
+        "p2": {
+          "mean_turns": 35.6,
+          "est_minutes": 15.3
+        },
+        "p3": {
+          "mean_turns": 56.8,
+          "est_minutes": 24.5
+        },
+        "p4": {
+          "mean_turns": 78.1,
+          "est_minutes": 33.6
+        },
+        "est_minutes_range": [
+          15.3,
+          33.6
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:blind-swap",
+          "mech:hand-management",
+          "mech:hidden-information",
+          "mech:memory",
+          "mech:push-your-luck",
+          "mech:set-collection",
+          "mech:tableau-building",
+          "order:clockwise"
+        ],
+        "nearest": "loom",
+        "similarity": 0.6
+      },
+      "reason": "",
+      "seconds": 0.003
+    }
+  ]
+}

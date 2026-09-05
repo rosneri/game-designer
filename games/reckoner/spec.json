@@ -1,0 +1,34 @@
+{
+  "slug": "reckoner",
+  "name": "Reckoner",
+  "tagline": "Every card you play is a target number; add or multiply the field to sweep it up.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "capture",
+    "set-collection",
+    "hand-management",
+    "arithmetic-matching",
+    "dice-bounty",
+    "hidden-information"
+  ],
+  "core_loop": "Play one card as a target number, then capture field cards that add or multiply to it (or trail the card), score target times cards taken, and re-roll the bounty die whenever a bounty rank cashes in.",
+  "win_condition": "Highest score after all 48 hand cards are played; ties break on captured cards, then best single capture, then higher seat number.",
+  "est_minutes": [
+    15,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

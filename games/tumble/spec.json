@@ -1,0 +1,35 @@
+{
+  "slug": "tumble",
+  "name": "Tumble",
+  "tagline": "One die sets the trump; the leader may flip it first.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "trick-taking",
+    "dice-driven-trump",
+    "die-flipping",
+    "draw-and-play",
+    "hand-management",
+    "hidden-information",
+    "no-follow"
+  ],
+  "core_loop": "Roll the die for the trick mode, the leader keeps or flips it, everyone plays one card with no follow-suit duty, and the winner scores 1 plus one point per trump card in the trick.",
+  "win_condition": "Most points when every hand and the draw pile are empty; ties break on tricks won, then the most recent trick win, then seat order from the dealer's left.",
+  "est_minutes": [
+    15,
+    30
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
