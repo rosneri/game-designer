@@ -195,14 +195,21 @@ class Batch:
         return [self.results[i] for i in sorted(self.results)]
 
 
+# run-level directories that never hold an idea result
+NON_IDEA_DIRS = {"snapshot", "improve"}
+
+
 def load_results(run_dir: Path) -> list[dict[str, Any]]:
+    """Every idea result of a run, oldest layout included (dirs used to be named after the slug)."""
     out = []
-    for p in sorted(Path(run_dir).glob("idea*/result.json")):
+    for p in sorted(Path(run_dir).glob("*/result.json")):
+        if p.parent.name in NON_IDEA_DIRS:
+            continue
         try:
             out.append(json.loads(p.read_text()))
         except json.JSONDecodeError:
             continue
-    return out
+    return sorted(out, key=lambda r: r.get("idx", 0))
 
 
 __all__ = ["Batch", "IdeaBrief", "jaccard", "load_results"]
