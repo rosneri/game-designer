@@ -77,6 +77,15 @@ commit, and git calls are serialized and retried when another process holds `ind
 generator flywheel --cycles 10 --n 10 --parallel 3 --push
 ```
 
+A long flywheel survives interruption. Cycle directories are named from `--label` (a timestamp by default), a
+finished cycle leaves a `.cycle-done` marker, and re-running the same command skips what is finished and
+resumes a cycle that was cut short:
+
+```bash
+generator flywheel --cycles 10 --n 10 --label night-run --push   # start
+generator flywheel --cycles 10 --n 10 --label night-run --push   # continue after a kill
+```
+
 ## Commands
 
 ```bash

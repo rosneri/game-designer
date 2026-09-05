@@ -503,15 +503,35 @@ def test_flywheel_runs_each_phase_in_a_fresh_interpreter(cfg, monkeypatch):
     monkeypatch.setattr("gd_generator.cli.subprocess.run",
                         lambda cmd, check=False: calls.append(cmd) or subprocess.CompletedProcess(cmd, 0))
     assert main(["--root", str(cfg.root), "flywheel", "--cycles", "2", "--n", "4", "--seed", "5",
-                 "--parallel", "2", "--push"]) == 0
+                 "--parallel", "2", "--push", "--label", "A"]) == 0
     phases = [c[c.index("gd_generator.cli") + 3] for c in calls]
     assert phases == ["run", "learn", "refine", "improve"] * 2
     assert all(c[:3] == [sys.executable, "-m", "gd_generator.cli"] for c in calls)
     run_cmd = calls[0]
     assert "--push" in run_cmd and run_cmd[run_cmd.index("--n") + 1] == "4" and run_cmd[run_cmd.index("--parallel") + 1] == "2"
     assert all("--push" in c for c in calls)  # every phase commits what it produces
-    assert main(["--root", str(cfg.root), "flywheel", "--cycles", "1", "--n", "1", "--no-refine", "--no-improve"]) == 0
+    assert main(["--root", str(cfg.root), "flywheel", "--cycles", "1", "--n", "1", "--no-refine",
+                 "--no-improve", "--label", "B"]) == 0
     assert [c[c.index("gd_generator.cli") + 3] for c in calls[8:]] == ["run", "learn"]
+
+
+def test_flywheel_resumes_an_interrupted_cycle(cfg, monkeypatch):
+    calls = []
+    monkeypatch.setattr("gd_generator.cli.subprocess.run",
+                        lambda cmd, check=False: calls.append(cmd) or subprocess.CompletedProcess(cmd, 0))
+    fly = ["--root", str(cfg.root), "flywheel", "--cycles", "3", "--n", "2", "--label", "L",
+           "--no-refine", "--no-improve"]
+    # cycle 1 finished; cycle 2 was killed mid-run (a manifest, no done marker); cycle 3 never started
+    for c, files in ((1, ("manifest.json", ".cycle-done")), (2, ("manifest.json",))):
+        d = cfg.runs_dir / f"L-c{c:02d}"
+        d.mkdir(parents=True)
+        for f in files:
+            (d / f).write_text("{}")
+    assert main(fly) == 0
+    phases = [c[c.index("gd_generator.cli") + 3] for c in calls]
+    assert phases == ["resume", "learn", "run", "learn"]      # c1 skipped, c2 resumed, c3 fresh
+    assert str(cfg.runs_dir / "L-c02") in calls[0] and str(cfg.runs_dir / "L-c03") in calls[2]
+    assert all((cfg.runs_dir / f"L-c{c:02d}" / ".cycle-done").exists() for c in (1, 2, 3))
 
 
 def test_cli_flywheel_and_harness_commands(cfg, tmp_path, monkeypatch, capsys):

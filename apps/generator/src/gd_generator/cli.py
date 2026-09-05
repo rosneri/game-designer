@@ -131,24 +131,42 @@ def _phase(args, *argv: str) -> int:
 
 
 def cmd_flywheel(args) -> int:
-    """run -> learn -> refine -> improve -> repeat. Each cycle starts from the previous cycle's harness."""
+    """run -> learn -> refine -> improve -> repeat. Each cycle starts from the previous cycle's harness.
+
+    Cycle directories are named from ``--label``, so re-running the same command after an interruption skips
+    finished cycles and resumes a half-finished one instead of starting over.
+    """
     stop = time.monotonic() + args.max_hours * 3600 if args.max_hours else None
+    label = args.label or time.strftime("%Y%m%d-%H%M%S")
     git_flags = ["--push"] if args.push else (["--commit"] if args.commit else [])
     batch_flags = [*git_flags, "--parallel", str(args.parallel or 3)]
     if args.mode:
         batch_flags += ["--mode", args.mode]
     if args.no_live_lessons:
         batch_flags.append("--no-live-lessons")
+    print(f"flywheel {label}: {args.cycles} cycles x {args.n} games", file=sys.stderr)
     for cycle in range(1, args.cycles + 1):
         cfg = _cfg(args)  # reload: an earlier cycle may have rewritten generator.toml
-        run_dir = cfg.runs_dir / f"{time.strftime('%Y%m%d-%H%M%S')}-c{cycle}"
-        print(f"\n=== cycle {cycle}/{args.cycles}: generating {args.n} games ===", file=sys.stderr)
-        _phase(args, "run", "--n", str(args.n), "--seed", str(args.seed + cycle), "--run-dir", str(run_dir), *batch_flags)
+        run_dir = cfg.runs_dir / f"{label}-c{cycle:02d}"
+        done = run_dir / ".cycle-done"
+        if done.exists():
+            print(f"=== cycle {cycle}/{args.cycles}: already complete, skipping ===", file=sys.stderr)
+            continue
+        started = (run_dir / "manifest.json").exists()
+        print(f"\n=== cycle {cycle}/{args.cycles}: {'resuming' if started else 'generating'} {args.n} games ===",
+              file=sys.stderr)
+        if started:
+            _phase(args, "resume", str(run_dir), *batch_flags)
+        else:
+            _phase(args, "run", "--n", str(args.n), "--seed", str(args.seed + cycle), "--run-dir", str(run_dir),
+                   *batch_flags)
         _phase(args, "learn", str(run_dir), *git_flags)
         if not args.no_refine:
             _phase(args, "refine", str(run_dir), *git_flags)
         if not args.no_improve:
             _phase(args, "improve", str(run_dir), *git_flags)
+        done.parent.mkdir(parents=True, exist_ok=True)   # a phase may have failed before creating it
+        done.write_text(time.strftime("%Y-%m-%dT%H:%M:%S\n"))
         if stop and time.monotonic() > stop:
             print(f"time budget reached after cycle {cycle}", file=sys.stderr)
             break
@@ -227,6 +245,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--n", type=int, default=5, help="games per cycle")
     p.add_argument("--seed", type=int, default=100)
     p.add_argument("--max-hours", type=float, default=None, help="stop after the cycle that crosses this budget")
+    p.add_argument("--label", default=None,
+                   help="names the cycle run dirs; reuse it to continue an interrupted flywheel")
     p.add_argument("--no-refine", action="store_true")
     p.add_argument("--no-improve", action="store_true")
     add_batch_flags(p)
