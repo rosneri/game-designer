@@ -1,0 +1,33 @@
+{
+  "slug": "lamplighter",
+  "name": "Lamplighter",
+  "tagline": "Peek, claim five paintings, then face the vault lots.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 0,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "memory",
+    "hand-management",
+    "matching",
+    "take-that",
+    "push-your-luck"
+  ],
+  "core_loop": "Each turn peek at one face-down painting, claim one of your five wall slots with a hand card for a rank or suit bonus, or rehang a shuffled row while sneaking a private look.",
+  "win_condition": "Highest total value of claimed paintings plus the vault cards dealt by lot when the gallery closes.",
+  "est_minutes": [
+    10,
+    20
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}

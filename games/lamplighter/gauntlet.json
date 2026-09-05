@@ -1,0 +1,168 @@
+{
+  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea06/workspace/games/lamplighter",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 41.73,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "lamplighter",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 0
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.005
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 18.5,
+          "max_turns": 29,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 27.4,
+          "max_turns": 42,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 25.3,
+          "max_turns": 32,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 0.648
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.517,
+            0.483
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.297,
+            0.38,
+            0.323
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.263,
+            0.227,
+            0.21,
+            0.3
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 3.419
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.908,
+          "mcts_win_rate": 0.5
+        },
+        "p3": {
+          "greedy_win_rate": 0.85
+        },
+        "p4": {
+          "greedy_win_rate": 0.9
+        }
+      },
+      "reason": "",
+      "seconds": 37.649
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 28,
+        "forced_share": 0.0,
+        "turns_sampled": 2136
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.581,
+        "p2": {
+          "mean_turns": 18.5,
+          "est_minutes": 10.7
+        },
+        "p3": {
+          "mean_turns": 27.4,
+          "est_minutes": 15.9
+        },
+        "p4": {
+          "mean_turns": 25.3,
+          "est_minutes": 14.7
+        },
+        "est_minutes_range": [
+          10.7,
+          15.9
+        ]
+      },
+      "reason": "",
+      "seconds": 0.0
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:hand-management",
+          "mech:matching",
+          "mech:memory",
+          "mech:push-your-luck",
+          "mech:take-that",
+          "order:clockwise"
+        ],
+        "nearest": "dead-drop",
+        "similarity": 0.6
+      },
+      "reason": "",
+      "seconds": 0.007
+    }
+  ]
+}
