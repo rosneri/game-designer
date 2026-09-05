@@ -1,0 +1,33 @@
+{
+  "slug": "open-outcry",
+  "name": "Open Outcry",
+  "tagline": "Pump the ticker, buy the dip, cash out before the correction.",
+  "players_min": 2,
+  "players_max": 4,
+  "components": {
+    "jokers": 0,
+    "dice": 1,
+    "uses_full_deck": true,
+    "extra": []
+  },
+  "mechanics": [
+    "commodity-speculation",
+    "stock-holding",
+    "hand-management",
+    "dice-rolling",
+    "hidden-victory-points"
+  ],
+  "core_loop": "On your turn play a card to a suit's ticker to move its price, buy a card into your portfolio as a share, or sell a share by swapping it for the ticker's top card; a die corrects one stock each round.",
+  "win_condition": "Highest total of banked vault cards plus the final price of every share you hold.",
+  "est_minutes": [
+    20,
+    28
+  ],
+  "gm": {
+    "enabled": false,
+    "role": "",
+    "decisions": []
+  },
+  "hidden_information": true,
+  "turn_order": "clockwise"
+}
