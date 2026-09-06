@@ -1,7 +1,7 @@
 {
   "slug": "ferryman",
   "name": "Ferryman",
-  "tagline": "Every card in hand is a coin; every card on the Dock is a passenger.",
+  "tagline": "Every card in hand is a coin; the passenger you landed last is the one they can steal.",
   "players_min": 2,
   "players_max": 4,
   "components": {
@@ -15,14 +15,17 @@
     "card-economy",
     "market-row",
     "set-collection",
+    "diminishing-returns",
+    "take-that",
+    "catch-up",
     "dice-modifier",
     "hand-limit"
   ],
-  "core_loop": "On your turn ferry a Dock passenger by paying an equal-or-higher (or buoyant) hand card onto the shared Toll pile, or spend the turn wading a toll card or drawing.",
-  "win_condition": "Most points from ferried passengers, kin-fare bonuses and suit majorities, minus one per card left in hand.",
+  "core_loop": "On your turn ferry a Dock passenger by paying an equal-or-higher (or buoyant) hand card onto the shared Toll pile, or pay a card to poach the newest passenger off a player who is ahead of you, or wade a toll card or draw.",
+  "win_condition": "Most points from the Shore ledger (per suit: highest card full, second half, rest 1 each), plus kin fares and suit majorities, minus one per card left in hand.",
   "est_minutes": [
-    15,
-    30
+    20,
+    35
   ],
   "gm": {
     "enabled": false,
@@ -30,5 +33,5 @@
     "decisions": []
   },
   "hidden_information": true,
-  "turn_order": "clockwise"
+  "turn_order": "variable"
 }
