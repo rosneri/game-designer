@@ -1,6 +1,7 @@
 """Fake prime-agent / claude: answers by prompt type. Optional env GD_FAKE_LLM_MODE=empty|badjson|infra.
 GD_FAKE_INFRA_ONCE=<path>: fail with an infra error only on the first call (marker file).
 GD_FAKE_IMPROVE_WRITE=<path>::<text>: what the improve step should write (simulates an agent editing the repo).
+GD_FAKE_JUDGE_SEQ="4,6,3": the `fun` score for successive judge calls, so an iteration can get better or worse.
 """
 import os
 import re
@@ -44,7 +45,27 @@ elif "Write pytest tests" in prompt:
     slug = re.search(r"games/([a-z0-9-]+)/test_rules\.py", prompt).group(1)
     print(block("python", f"games/{slug}/test_rules.py", TESTS))
 elif "board-game reviewer" in prompt:
-    print("not json at all" if mode == "badjson" else JUDGE)
+    if mode == "badjson":
+        print("not json at all")
+    else:
+        seq = [x for x in os.environ.get("GD_FAKE_JUDGE_SEQ", "").split(",") if x]
+        if seq:
+            state = os.environ.get("GD_FAKE_STATE", "/tmp/gd_fake_state")
+            os.makedirs(state, exist_ok=True)
+            cf = os.path.join(state, "judge.count")
+            n = 1
+            if os.path.exists(cf):
+                with open(cf) as f:
+                    n = int(f.read()) + 1
+            with open(cf, "w") as f:
+                f.write(str(n))
+            print(JUDGE.replace('"fun": 4', f'"fun": {seq[min(n, len(seq)) - 1]}'))
+        else:
+            print(JUDGE)
+elif "redesigning an existing card game" in prompt:
+    slug = re.search(r"games/([a-z0-9-]+)/rules\.py", prompt).group(1)
+    print("I added a catch-up lever.\n" + block("python", f"games/{slug}/rules.py",
+          RULES.replace("Stub Duel rulesheet", "Stub Duel rulesheet (redesigned)")))
 elif "learned-rules ledger" in prompt:
     print("not json at all" if mode == "badjson" else REFINE)
 elif "improving a self-improving card-game generator" in prompt:

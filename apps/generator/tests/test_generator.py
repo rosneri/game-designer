@@ -19,6 +19,7 @@ from gd_generator.config import GeneratorConfig
 from gd_generator.git import GitRepo
 from gd_generator.harness import Edit, Harness, parse_edits
 from gd_generator.improve import improve
+from gd_generator.iterate import best_games, iterate, recorded_scores
 from gd_generator.models import IdeaResult
 from gd_generator.pipeline import Batch
 from gd_generator.prompts import DIRECTIONS, Prompts, choose_direction, parse_idea, slugify
@@ -639,3 +640,78 @@ def test_failed_game_is_not_committed(cfg, tmp_path, monkeypatch):
     committed = cfg.model_copy(update={"commit_each_game": True})
     (res,) = run_batch(committed, tmp_path / "run")
     assert res.failed_stage == "gauntlet" and not res.promoted and _log(cfg.root) == ["base"]
+
+
+# ------------------------------------------------------------------ iterate
+def _catalog_with_scores(cfg, tmp_path):
+    """A catalog game plus a run under <root>/runs that recorded a judge score for it."""
+    run_batch(cfg, cfg.runs_dir / "seed-run")
+    assert (cfg.catalog_dir / "stub-duel" / "rules.py").exists()
+    return "stub-duel"
+
+
+def test_recorded_scores_and_best_games(cfg, tmp_path):
+    slug = _catalog_with_scores(cfg, tmp_path)
+    scores = recorded_scores(cfg.root)
+    assert scores[slug]["total"] == 22 and scores[slug]["verdict"] == "reject"
+    assert best_games(cfg, 3) == [slug]
+    assert best_games(cfg, 3, [slug]) == [slug]
+    with pytest.raises(ValueError):
+        best_games(cfg, 3, ["not-a-game"])
+    add_catalog_game(cfg, cfg.reference_game)          # the reference game is never a candidate
+    assert cfg.reference_game not in best_games(cfg, 9)
+
+
+def test_iterate_keeps_a_better_redesign(cfg, tmp_path, monkeypatch):
+    slug = _catalog_with_scores(cfg, tmp_path)
+    before = (cfg.catalog_dir / slug / "rules.py").read_text()
+    # judge calls: baseline 22, then round 1 scores higher
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,9")
+    (r,) = iterate(cfg, tmp_path / "iter", [slug], rounds=1)
+    assert r.baseline == 22 and r.best == 27 and r.improved and r.promoted
+    assert [x.kept for x in r.rounds] == [True]
+    after = (cfg.catalog_dir / slug / "rules.py").read_text()
+    assert "(redesigned)" in after and after != before
+    saved = json.loads((tmp_path / "iter" / slug / "iteration.json").read_text())
+    assert saved["improved"] and saved["rounds"][0]["total"] == 27
+    assert (tmp_path / "iter" / slug / "iterate1.prompt.md").exists()
+    assert (cfg.catalog_dir / slug / "gauntlet.json").exists()
+
+
+def test_iterate_discards_a_worse_redesign(cfg, tmp_path, monkeypatch):
+    slug = _catalog_with_scores(cfg, tmp_path)
+    before = (cfg.catalog_dir / slug / "rules.py").read_text()
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,1,2")   # both rounds score below the baseline
+    (r,) = iterate(cfg, tmp_path / "iter", [slug], rounds=2)
+    assert r.baseline == 22 and r.best == 22 and not r.improved and not r.promoted
+    assert [x.total for x in r.rounds] == [19, 20] and not any(x.kept for x in r.rounds)
+    assert (cfg.catalog_dir / slug / "rules.py").read_text() == before   # catalog untouched
+
+
+def test_iterate_survives_a_round_that_fails_its_checks(cfg, tmp_path, monkeypatch):
+    slug = _catalog_with_scores(cfg, tmp_path)
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,9")
+    monkeypatch.setenv("GD_FAKE_FAIL", "validate:99")   # every redesign fails to validate
+    (r,) = iterate(cfg, tmp_path / "iter", [slug], rounds=1)
+    assert r.baseline == 22 and r.best == 22 and not r.promoted
+    assert not r.rounds[0].kept and r.rounds[0].error
+
+
+def test_cli_iterate(cfg, tmp_path, monkeypatch, capsys):
+    _catalog_with_scores(cfg, tmp_path)
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,9")
+    rc = main(["--root", str(cfg.root), "iterate", "--rounds", "1", "--run-dir", str(tmp_path / "it")])
+    assert rc == 0 and "1/1 games improved" in capsys.readouterr().err
+    assert main(["--root", str(cfg.root), "iterate", "nope", "--rounds", "1"]) == 1
+
+
+def test_flywheel_can_iterate(cfg, monkeypatch):
+    calls = []
+    monkeypatch.setattr("gd_generator.cli.subprocess.run",
+                        lambda cmd, check=False: calls.append(cmd) or subprocess.CompletedProcess(cmd, 0))
+    assert main(["--root", str(cfg.root), "flywheel", "--cycles", "1", "--n", "2", "--label", "I",
+                 "--no-refine", "--no-improve", "--iterate", "2", "--iterate-rounds", "3"]) == 0
+    phases = [c[c.index("gd_generator.cli") + 3] for c in calls]
+    assert phases == ["run", "learn", "iterate"]
+    it = calls[-1]
+    assert it[it.index("--top") + 1] == "2" and it[it.index("--rounds") + 1] == "3"

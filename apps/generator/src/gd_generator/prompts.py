@@ -191,6 +191,15 @@ class Prompts:
         return self.render("tests", slug=slug, players=", ".join(map(str, range(players[0], players[1] + 1))),
                            docstring=rules_docstring(game_dir), rules=(game_dir / "rules.py").read_text())
 
+    def iterate(self, slug: str, game_dir: Path, verdict, metrics: str, trace: str) -> str:
+        notes = "\n".join(f"- {n}" for n in (verdict.notes or [])) or "- (none)"
+        return self.render("iterate", contract=self.contract(), harness=self.harness_text("fix"), slug=slug,
+                           files=files_text(game_dir), metrics=metrics, trace=trace, notes=notes,
+                           summary=verdict.summary or "", verdict=verdict.verdict, total=verdict.total,
+                           **{d: getattr(verdict, d) for d in
+                              ("fun", "clarity", "originality", "depth", "component_fit")},
+                           **self.tool_cmds(slug, game_dir))
+
     def judge(self, idea: str, game_dir: Path, metrics: str, trace: str = "") -> str:
         return self.render("judge", idea=idea[:8000], docstring=rules_docstring(game_dir), metrics=metrics,
                            trace=trace or "(no transcript available)")

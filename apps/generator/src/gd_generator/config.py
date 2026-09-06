@@ -37,6 +37,8 @@ DEFAULT_STEPS: dict[str, StepRoute] = {
     # Sonnet at low thinking scored "fun" 6/10 for 24 of 25 games and never varied the verdict; judging
     # quality needs a model that will actually discriminate.
     "judge": StepRoute(model="anthropic/claude-opus-5", thinking="medium", timeout=600),
+    # second design pass over a finished game: substantial rules changes, so the code model with tools
+    "iterate": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1200, tools=True),
     # self-improvement: reflect on a finished run (fable) and patch the harness itself (opus, with tools)
     "refine": StepRoute(backend="claude", model="anthropic/claude-fable-5-1", thinking="medium", timeout=600),
     "improve": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1800, tools=True),
@@ -79,6 +81,8 @@ class GeneratorConfig(BaseModel):
     # judged by the new prompt.
     min_judge_total: int = 15
     trace_seeds: int = 1             # transcripts shown to the judge, per player count sampled
+    iterate_rounds: int = 2          # design passes per game in `generator iterate`
+    iterate_top: int = 3             # how many of the best games a flywheel cycle iterates
     promote: bool = True             # copy survivors into the catalog (games/) at the end of the run
     reference_game: str = "reference-war-plus"
 

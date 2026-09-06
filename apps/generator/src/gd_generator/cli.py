@@ -12,6 +12,7 @@ from .config import GeneratorConfig
 from .git import GitRepo
 from .harness import Harness
 from .improve import improve
+from .iterate import best_games, iterate
 from .models import IdeaResult
 from .pipeline import Batch
 from .prompts import Prompts, choose_direction
@@ -107,6 +108,35 @@ def cmd_improve(args) -> int:
     return 0 if res.applied else 1
 
 
+def cmd_iterate(args) -> int:
+    """Second design pass over finished games: change, re-measure, keep only what scores higher."""
+    cfg = _cfg(args)
+    try:
+        slugs = best_games(cfg, args.top, args.slugs or None)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 1
+    if not slugs:
+        print("no scored games in the catalog to iterate", file=sys.stderr)
+        return 1
+    run_dir = Path(args.run_dir) if args.run_dir else cfg.runs_dir / f"iterate-{time.strftime('%Y%m%d-%H%M%S')}"
+    print(f"iterating {', '.join(slugs)} x{args.rounds} rounds -> {run_dir}", file=sys.stderr)
+    git = _git(cfg)
+    improved = 0
+    for r in iterate(cfg, run_dir, slugs, rounds=args.rounds):
+        arrow = f"{r.baseline} -> {r.best}" if r.baseline is not None else f"failed: {r.error[:120]}"
+        kept = sum(1 for x in r.rounds if x.kept)
+        print(f"[{r.slug}] {arrow} ({kept}/{len(r.rounds)} rounds kept)"
+              + (" promoted" if r.promoted else ""), file=sys.stderr)
+        if r.promoted:
+            improved += 1
+            git.commit_and_push([f"games/{r.slug}"],
+                                f"Iterate {r.slug}: {r.baseline} -> {r.best}/50\n\n"
+                                f"{kept} of {len(r.rounds)} design passes kept, judged after each.")
+    print(f"{improved}/{len(slugs)} games improved", file=sys.stderr)
+    return 0 if improved else 1
+
+
 def cmd_learn(args) -> int:
     cfg = _cfg(args)
     run_dir = Path(args.run_dir)
@@ -165,6 +195,9 @@ def cmd_flywheel(args) -> int:
             _phase(args, "refine", str(run_dir), *git_flags)
         if not args.no_improve:
             _phase(args, "improve", str(run_dir), *git_flags)
+        if args.iterate:
+            _phase(args, "iterate", "--top", str(args.iterate), "--rounds", str(args.iterate_rounds),
+                   "--run-dir", str(run_dir / "iterate"), *git_flags)
         done.parent.mkdir(parents=True, exist_ok=True)   # a phase may have failed before creating it
         done.write_text(time.strftime("%Y-%m-%dT%H:%M:%S\n"))
         if stop and time.monotonic() > stop:
@@ -249,6 +282,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help="names the cycle run dirs; reuse it to continue an interrupted flywheel")
     p.add_argument("--no-refine", action="store_true")
     p.add_argument("--no-improve", action="store_true")
+    p.add_argument("--iterate", type=int, default=0, metavar="N",
+                   help="after improving, run a design pass over the N best games (0: off)")
+    p.add_argument("--iterate-rounds", type=int, default=1)
     add_batch_flags(p)
     p.set_defaults(fn=cmd_flywheel)
 
@@ -265,6 +301,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--dry-run", action="store_true", help="print the prompt without calling the model")
     _add_git_flags(p)
     p.set_defaults(fn=cmd_improve)
+
+    p = sub.add_parser("iterate", help="redesign existing games and keep the version that scores higher")
+    p.add_argument("slugs", nargs="*", help="games to iterate (default: the best --top by judge score)")
+    p.add_argument("--top", type=int, default=3)
+    p.add_argument("--rounds", type=int, default=2)
+    p.add_argument("--run-dir", default=None)
+    _add_git_flags(p)
+    p.set_defaults(fn=cmd_iterate)
 
     p = sub.add_parser("learn", help="fold a finished run's lessons into prompts/LESSONS.md")
     p.add_argument("run_dir")

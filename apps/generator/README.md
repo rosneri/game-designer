@@ -103,6 +103,20 @@ game the winner takes their final lead) and the comeback rate. Its thresholds si
 29-game catalog, so the least dramatic quarter fails. `s7_novelty` moved from 0.9 to 0.75 because 0.9 never
 fired once in 29 games.
 
+## Iterating a finished game
+
+Generation produces first drafts, and the judge has called every one of them "iterate". `generator iterate`
+runs that second pass: it shows the model the rulesheet, the metrics and a transcript of real play, asks for
+one substantial design change aimed at the weakest dimension, then re-measures and **keeps the new version only
+if it scores higher**. Each round runs in its own workspace, so a failed attempt never touches the catalog, and
+the version that wins at the end may be the one it started with.
+
+```bash
+generator iterate --top 3 --rounds 2 --push   # the three best-scoring games, two passes each
+generator iterate loom ferryman --rounds 1    # named games
+generator flywheel --cycles 5 --n 8 --iterate 3   # a design pass on the best games every cycle
+```
+
 ## Commands
 
 ```bash
@@ -111,6 +125,7 @@ generator resume runs/20260905-1200             # finish an interrupted run; re-
 generator flywheel --cycles 5 --n 8             # run → learn → refine → improve, repeatedly
 generator refine runs/<run>                     # ledger edits from one run's evidence
 generator improve runs/<run> [--dry-run]        # patch the harness itself, behind gates
+generator iterate --top 3 --rounds 2            # redesign the best games, keep what scores higher
 generator learn runs/<run>                      # fold lessons into prompts/LESSONS.md
 generator harness                               # print the ledger
 generator rollback <event-id>                   # undo one refinement
