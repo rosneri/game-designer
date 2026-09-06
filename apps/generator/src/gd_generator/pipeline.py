@@ -145,7 +145,14 @@ class Batch:
             ctx.idea_text = ctx.idea_text or (ctx.idea_dir / "idea.md").read_text()
             for _, fn in BUILD_STEPS:
                 fn(ctx)
-            if self.cfg.promote:
+            j = ctx.result.judge
+            if j and self.cfg.min_judge_total and j.total < self.cfg.min_judge_total:
+                # it survived the gauntlet but is not worth keeping: the catalog is what later ideas are
+                # told to beat, so letting weak games in lowers the bar for everything after them.
+                ctx.result.rejected = True
+                self.events.emit("rejected", idx=ctx.result.idx, slug=ctx.result.slug, total=j.total,
+                                 threshold=self.cfg.min_judge_total)
+            elif self.cfg.promote:
                 step_promote(ctx)
         except StepFailed as e:
             ctx.result.failed_stage, ctx.result.error, ctx.result.infra = e.stage, e.error[-4000:], infra_flag(e.error)

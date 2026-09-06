@@ -34,7 +34,9 @@ DEFAULT_STEPS: dict[str, StepRoute] = {
     "code": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=900, tools=True),
     "fix": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=900, tools=True),
     "tests": StepRoute(model="anthropic/claude-sonnet-5", thinking="low", timeout=600),
-    "judge": StepRoute(model="anthropic/claude-sonnet-5", thinking="low", timeout=300),
+    # Sonnet at low thinking scored "fun" 6/10 for 24 of 25 games and never varied the verdict; judging
+    # quality needs a model that will actually discriminate.
+    "judge": StepRoute(model="anthropic/claude-opus-5", thinking="medium", timeout=600),
     # self-improvement: reflect on a finished run (fable) and patch the harness itself (opus, with tools)
     "refine": StepRoute(backend="claude", model="anthropic/claude-fable-5-1", thinking="medium", timeout=600),
     "improve": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1800, tools=True),
@@ -71,6 +73,12 @@ class GeneratorConfig(BaseModel):
     git_branch: str = ""            # empty: whatever branch is checked out
     # batch behaviour
     dedupe_similarity: float = 0.75  # cull a brief whose mechanic tags overlap this much with an earlier one
+    # Below this a game is not promoted into the catalog (0 disables). NOT YET CALIBRATED: the old judge
+    # gave 24 of 25 games a 6 for fun and totals of 28-34; the rewritten one scored two of those same games
+    # 17 and 18. This floor only catches the clearly bad. Re-set it from the distribution of a full batch
+    # judged by the new prompt.
+    min_judge_total: int = 15
+    trace_seeds: int = 1             # transcripts shown to the judge, per player count sampled
     promote: bool = True             # copy survivors into the catalog (games/) at the end of the run
     reference_game: str = "reference-war-plus"
 

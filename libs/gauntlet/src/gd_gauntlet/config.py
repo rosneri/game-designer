@@ -35,8 +35,14 @@ class GauntletConfig(BaseModel):
     turns_max: int = 400
     minutes_per_turn: float = 0.1
     minutes_band: tuple[float, float] = (8.0, 35.0)
-    # s7
-    max_novelty_similarity: float = 0.9
+    # s7 — 0.9 never fired on a 29-game catalog (max observed nearest-neighbour similarity was 0.77);
+    # 0.75 flags the genuinely derivative pairs (e.g. undercroft ~ barrow at 0.769).
+    max_novelty_similarity: float = 0.75
+    # s8 tension: is the winner ever in doubt? Thresholds sit at the 25th percentile of the 29-game
+    # catalog measured with a greedy/random mix at 3 players, so the least dramatic quarter fails.
+    tension_games: int = 12
+    min_lead_changes: float = 3.0     # mean lead changes per game
+    min_decided_at: float = 0.35      # fraction of the game elapsed before the winner's final lead
     # misc
     seed: int = 0
 

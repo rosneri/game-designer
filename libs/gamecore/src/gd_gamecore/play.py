@@ -32,6 +32,7 @@ class PlayResult:
     history: list[TurnRecord] = field(default_factory=list)
     error: str | None = None
     final_state: Any = None  # last state reached (terminal unless ``error`` is set)
+    score_trace: list[list[float]] = field(default_factory=list)  # scores after each turn; needs record_scores
 
     @property
     def is_draw(self) -> bool:
@@ -44,6 +45,7 @@ def play_game(
     seed: int,
     max_turns: int = 2000,
     record: bool = False,
+    record_scores: bool = False,
     on_turn: Callable[[State, int, Action], None] | None = None,
 ) -> PlayResult:
     """Run one game to completion. Deterministic for (game, agents, seed)."""
@@ -51,34 +53,37 @@ def play_game(
     agent_rng = Random(seed ^ 0x5EED)
     s = game.setup(rng)
     hist: list[TurnRecord] = []
+    trace: list[list[float]] = []
     turns = 0
     try:
         while not game.is_terminal(s):
             if turns >= max_turns:
-                return PlayResult(game.scores(s), turns, [], hist, error=f"exceeded max_turns={max_turns}", final_state=s)
+                return PlayResult(game.scores(s), turns, [], hist, error=f"exceeded max_turns={max_turns}", final_state=s, score_trace=trace)
             p = game.current_player(s)
             legal = game.legal_actions(s)
             if not legal:
-                return PlayResult(game.scores(s), turns, [], hist, error="no legal actions in non-terminal state", final_state=s)
+                return PlayResult(game.scores(s), turns, [], hist, error="no legal actions in non-terminal state", final_state=s, score_trace=trace)
             a = agents[p].act(game, s, legal, agent_rng)
             if a not in legal:
-                return PlayResult(game.scores(s), turns, [], hist, error=f"agent chose illegal action {a!r}", final_state=s)
+                return PlayResult(game.scores(s), turns, [], hist, error=f"agent chose illegal action {a!r}", final_state=s, score_trace=trace)
             before = copy.deepcopy(s) if record else None
             s = game.step(s, a, rng)
             if record:
                 hist.append(TurnRecord(p, len(legal), str(a)))
                 del before
+            if record_scores:
+                trace.append([float(x) for x in game.scores(s)])
             if on_turn:
                 on_turn(s, p, a)
             turns += 1
         sc = game.scores(s)
         if len(sc) != game.n_players:
-            return PlayResult(sc, turns, [], hist, error="scores length != n_players", final_state=s)
+            return PlayResult(sc, turns, [], hist, error="scores length != n_players", final_state=s, score_trace=trace)
         best = max(sc)
         winners = [i for i, v in enumerate(sc) if v == best]
-        return PlayResult(sc, turns, winners, hist, final_state=s)
+        return PlayResult(sc, turns, winners, hist, final_state=s, score_trace=trace)
     except Exception as e:  # noqa: BLE001
-        return PlayResult([0.0] * game.n_players, turns, [], hist, error=f"{type(e).__name__}: {e}", final_state=s)
+        return PlayResult([0.0] * game.n_players, turns, [], hist, error=f"{type(e).__name__}: {e}", final_state=s, score_trace=trace)
 
 
 def load_game_module(game_dir: str | Path) -> ModuleType:

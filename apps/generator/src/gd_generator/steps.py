@@ -153,6 +153,26 @@ class IdeaContext:
         t = self.tool([*self.cfg.pytest_cmd, str(self.game_dir), "-q", "-x", "--no-header", "-p", "no:cacheprovider"])
         return t.ok, t.output
 
+    def trace(self, n: int, seed: int = 1) -> str:
+        t = self.tool([*self.cfg.runner_cmd, "trace", str(self.game_dir), "--players", str(n), "--seed", str(seed)])
+        return t.output
+
+    def gauntlet_and_tests(self) -> tuple[bool, str]:
+        """The gauntlet must pass *and* leave the unit tests passing.
+
+        A gauntlet repair rewrites rules.py and spec.json to fix balance or length. That can invalidate the
+        tests written against the earlier rules, and nothing used to re-run them, so a game could be promoted
+        with a red suite (games/furlong shipped that way).
+        """
+        ok, err = self.gauntlet()
+        if not ok:
+            return False, err
+        ok, terr = self.pytest()
+        if not ok:
+            return False, ("The gauntlet passes but the unit tests no longer do. Reconcile them: fix rules.py "
+                           "if the behaviour is wrong, or test_rules.py if it asserts the old rules.\n" + terr)
+        return True, ""
+
     def gauntlet(self) -> tuple[bool, str]:
         jp = self.idea_dir / "gauntlet.json"
         t = self.tool([*self.cfg.runner_cmd, "gauntlet", str(self.game_dir), "--json", str(jp)])
@@ -258,12 +278,29 @@ def step_gauntlet(ctx: IdeaContext) -> None:
         ctx.result.gauntlet = json.loads(jp.read_text())
         return
     t0 = time.monotonic()
-    ok, err = ctx.gauntlet()
-    if not ok and not repair(ctx, "gauntlet", err, ctx.gauntlet, ctx.cfg.max_fix_rounds,
+    ok, err = ctx.gauntlet_and_tests()
+    if not ok and not repair(ctx, "gauntlet", err, ctx.gauntlet_and_tests, ctx.cfg.max_fix_rounds,
                              extra="Failing gauntlet stages with metrics are listed above. Adjust rules to fix balance/length/decision density while keeping the game's identity."):
         ctx.record(StepRecord(name="gauntlet", status="failed", seconds=time.monotonic() - t0, error=ctx.result.error, artifacts={"json": "gauntlet.json"}))
         ctx.fail("gauntlet", ctx.result.error or err)
     ctx.record(StepRecord(name="gauntlet", status="ok", seconds=time.monotonic() - t0, artifacts={"json": "gauntlet.json"}))
+
+
+def game_traces(ctx: IdeaContext) -> str:
+    """Transcripts of real play at the extremes of the supported player range.
+
+    The judge used to see only the rulesheet and aggregate metrics, and rated every game alike. A transcript
+    shows the thing the prose cannot: whether the score actually moves.
+    """
+    lo, hi = ctx.result.brief.players if ctx.result.brief else (2, 4)
+    counts = sorted({lo, hi})
+    out = []
+    for n in counts:
+        for seed in range(1, max(1, ctx.cfg.trace_seeds) + 1):
+            text = ctx.trace(n, seed)
+            if text.strip():
+                out.append(text)
+    return "\n\n".join(out)[:14000] or "(no transcript available)"
 
 
 def step_judge(ctx: IdeaContext) -> None:
@@ -272,7 +309,9 @@ def step_judge(ctx: IdeaContext) -> None:
         ctx.result.judge = JudgeVerdict.model_validate_json(jp.read_text())
         return
     metrics = json.dumps(ctx.result.gauntlet or {}, indent=1, default=str)[:8000]
-    r = ctx.ask("judge", ctx.prompts.judge(ctx.idea_text, ctx.game_dir, metrics), "judge")
+    trace = game_traces(ctx)
+    ctx.save("trace.txt", trace)
+    r = ctx.ask("judge", ctx.prompts.judge(ctx.idea_text, ctx.game_dir, metrics, trace), "judge")
     j = parse_json_block(r.text) if r.text else None
     if j is None:
         ctx.rec_from("judge", r, False, "no JSON verdict", prompt="judge.prompt.md", out="judge.out.txt")

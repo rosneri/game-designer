@@ -1,0 +1,199 @@
+{
+  "game_dir": "games/chicane",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 24.28,
+  "stages": [
+    {
+      "name": "s0_schema",
+      "passed": true,
+      "metrics": {
+        "slug": "chicane",
+        "players": [
+          2,
+          4
+        ],
+        "jokers": 0,
+        "dice": 1
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s1_import",
+      "passed": true,
+      "metrics": {
+        "player_counts": [
+          2,
+          3,
+          4
+        ]
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s2_playable",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "mean_turns": 59.5,
+          "max_turns": 70,
+          "error_rate": 0.0
+        },
+        "p3": {
+          "mean_turns": 53.9,
+          "max_turns": 61,
+          "error_rate": 0.0
+        },
+        "p4": {
+          "mean_turns": 50.4,
+          "max_turns": 60,
+          "error_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 1.172
+    },
+    {
+      "name": "s3_balance",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "seat_win_rates": [
+            0.483,
+            0.517
+          ],
+          "draw_rate": 0.0
+        },
+        "p3": {
+          "seat_win_rates": [
+            0.37,
+            0.307,
+            0.323
+          ],
+          "draw_rate": 0.0
+        },
+        "p4": {
+          "seat_win_rates": [
+            0.22,
+            0.277,
+            0.237,
+            0.267
+          ],
+          "draw_rate": 0.0
+        }
+      },
+      "reason": "",
+      "seconds": 5.964
+    },
+    {
+      "name": "s4_skill",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "greedy_win_rate": 0.708,
+          "dominance": 0.417,
+          "mcts_win_rate": 0.667
+        },
+        "p3": {
+          "greedy_win_rate": 0.725,
+          "dominance": 0.587
+        },
+        "p4": {
+          "greedy_win_rate": 0.633,
+          "dominance": 0.511
+        },
+        "skill_dominance": 0.505
+      },
+      "reason": "",
+      "seconds": 15.647
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 4.9,
+        "forced_share": 0.12,
+        "turns_sampled": 4912
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.329,
+        "p2": {
+          "mean_turns": 59.5,
+          "est_minutes": 19.6
+        },
+        "p3": {
+          "mean_turns": 53.9,
+          "est_minutes": 17.7
+        },
+        "p4": {
+          "mean_turns": 50.4,
+          "est_minutes": 16.6
+        },
+        "est_minutes_range": [
+          16.6,
+          19.6
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:1",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:catch-up-turn-order",
+          "mech:dice-movement",
+          "mech:hand-management",
+          "mech:hidden-information",
+          "mech:racing",
+          "mech:track-building",
+          "order:variable"
+        ],
+        "nearest": "pit-lane",
+        "similarity": 0.533
+      },
+      "reason": "",
+      "seconds": 0.011
+    },
+    {
+      "name": "s8_tension",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "lead_changes": 15.5,
+          "decided_at": 0.639,
+          "comeback": 0.333
+        },
+        "p3": {
+          "lead_changes": 23.333,
+          "decided_at": 0.983,
+          "comeback": 0.667
+        },
+        "p4": {
+          "lead_changes": 13.417,
+          "decided_at": 0.832,
+          "comeback": 0.583
+        },
+        "mean_lead_changes": 17.42,
+        "mean_decided_at": 0.818,
+        "mean_comeback_rate": 0.528
+      },
+      "reason": "",
+      "seconds": 1.476
+    }
+  ]
+}

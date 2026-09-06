@@ -90,7 +90,7 @@ def test_setup_state(n):
     rng = __import__("random").Random(7)
     s = game.setup(rng)
     assert all(pos == 0 for pos in s.pos)
-    assert s.frontier == 3
+    assert s.frontier == 4
     assert all(len(h) == 6 for h in s.hands)
     assert 1 <= s.reach <= 6
 

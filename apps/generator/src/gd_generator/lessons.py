@@ -34,7 +34,8 @@ def records_from(result: IdeaResult, run_id: str) -> list[dict[str, Any]]:
         weakest = min(dims, key=dims.get)
         metrics = _key_metrics(result.gauntlet)
         out.append({"run": run_id, "slug": slug, "kind": "judge", "total": j.total, "verdict": j.verdict,
-                    "weakest": weakest, "weakest_score": dims[weakest], "notes": j.notes[:3], **metrics})
+                    "weakest": weakest, "weakest_score": dims[weakest], "notes": j.notes[:3],
+                    "rejected": result.rejected, **metrics})
     return out
 
 
@@ -103,7 +104,8 @@ def _per_game(records: list[dict[str, Any]]) -> list[str]:
             out.append(f"[{r['stage']}] {r['slug']}: unrecovered after {r['fix_rounds']} fixes: {r['error'][-120:]}")
         elif r["kind"] == "judge":
             note = (r.get("notes") or [""])[0][:140]
-            out.append(f"[passed] {r['slug']}: {r['total']}/50 weakest={r['weakest']} ({r['weakest_score']}/10); verdict={r['verdict']}; note: {note}")
+            tag = "rejected" if r.get("rejected") else "passed"
+            out.append(f"[{tag}] {r['slug']}: {r['total']}/50 weakest={r['weakest']} ({r['weakest_score']}/10); verdict={r['verdict']}; note: {note}")
     return out
 
 

@@ -52,7 +52,8 @@ def cfg(tmp_path, monkeypatch) -> GeneratorConfig:
     monkeypatch.setenv("GD_FAKE_STATE", str(tmp_path / "state"))
     for k in ("GD_FAKE_FAIL", "GD_FAKE_LLM_MODE", "GD_FAKE_INFRA_ONCE"):
         monkeypatch.delenv(k, raising=False)
-    return GeneratorConfig.load(root, tool_timeout=60, parallel=2)
+    # the stub judge always returns 22/50, so the promotion gate is off unless a test sets it
+    return GeneratorConfig.load(root, tool_timeout=60, parallel=2, min_judge_total=0)
 
 
 def add_catalog_game(cfg: GeneratorConfig, slug: str, spec: dict = SPEC) -> Path:
@@ -254,10 +255,44 @@ def test_gauntlet_unrecovered(cfg, tmp_path, monkeypatch):
     assert [r["kind"] for r in lessons.load(tmp_path / "run")] == ["fix", "fix", "unrecovered"]
 
 
+def test_gauntlet_fix_that_breaks_the_unit_tests_is_not_accepted(cfg, tmp_path, monkeypatch):
+    """A repair for balance can invalidate tests written against the old rules; both must end up green."""
+    monkeypatch.setenv("GD_FAKE_FAIL", "gauntlet:1,pytest:=2")
+    (res,) = run_batch(cfg, tmp_path / "run")
+    assert res.passed and res.promoted
+    assert [f.stage for f in res.fixes] == ["gauntlet", "gauntlet"]
+    assert not res.fixes[0].fixed and res.fixes[1].fixed
+    assert "unit tests no longer do" in res.fixes[1].error
+
+
 def test_tests_fail_once_then_pass(cfg, tmp_path, monkeypatch):
     monkeypatch.setenv("GD_FAKE_FAIL", "pytest:1")
     (res,) = run_batch(cfg, tmp_path / "run")
     assert res.passed and res.fix_rounds == 1 and res.fixes[0].stage == "tests"
+
+
+def test_judge_sees_a_transcript(cfg, tmp_path):
+    (res,) = run_batch(cfg, tmp_path / "run")
+    assert res.passed
+    idea = tmp_path / "run" / "idea00"
+    assert (idea / "trace.txt").exists()
+    prompt = (idea / "judge.prompt.md").read_text()
+    assert "Transcript of real play" in prompt and (idea / "trace.txt").read_text().strip()[:40] in prompt
+
+
+def test_low_score_blocks_promotion(cfg, tmp_path):
+    """The stub judge returns 22/50; the catalog is what later ideas must beat, so weak games stay out."""
+    strict = cfg.model_copy(update={"min_judge_total": 30})
+    (res,) = run_batch(strict, tmp_path / "run")
+    assert res.passed and res.judge.total == 22
+    assert res.rejected and not res.promoted and not (cfg.catalog_dir / "stub-duel").exists()
+    events = [json.loads(l) for l in (tmp_path / "run" / "events.jsonl").read_text().splitlines()]
+    assert any(e["kind"] == "rejected" and e["total"] == 22 for e in events)
+    assert "[rejected] stub-duel: 22/50" in "\n".join(lessons.bullets(lessons.load(tmp_path / "run")))
+    # under the threshold it is kept as before
+    lenient = cfg.model_copy(update={"min_judge_total": 20})
+    (res2,) = run_batch(lenient, tmp_path / "r2")
+    assert res2.promoted and not res2.rejected
 
 
 def test_bad_judge_json(cfg, tmp_path, monkeypatch):
@@ -335,7 +370,7 @@ def test_resume_reruns_infra_and_skips_finished_steps(cfg, tmp_path, monkeypatch
 def test_cli_run_report_learn(cfg, tmp_path, capsys):
     run_dir = tmp_path / "run"
     loose = cfg.root / "generator.toml"
-    loose.write_text("[generator]\ndedupe_similarity = 1.01\n")
+    loose.write_text("[generator]\ndedupe_similarity = 1.01\nmin_judge_total = 0\n")
     rc = main(["--root", str(cfg.root), "run", "--n", "2", "--seed", "3", "--parallel", "2", "--run-dir", str(run_dir)])
     assert rc == 0
     results = json.loads((run_dir / "results.json").read_text())
@@ -536,7 +571,8 @@ def test_flywheel_resumes_an_interrupted_cycle(cfg, monkeypatch):
 
 def test_cli_flywheel_and_harness_commands(cfg, tmp_path, monkeypatch, capsys):
     (cfg.root / "generator.toml").write_text(
-        f'[generator]\ndedupe_similarity = 1.01\nimprove_paths = ["prompts"]\nimprove_gates = [{[*STUB_TOOL, "gate"]!r}]\n'.replace("'", '"'))
+        f'[generator]\ndedupe_similarity = 1.01\nmin_judge_total = 0\nimprove_paths = ["prompts"]\n'
+        f'improve_gates = [{[*STUB_TOOL, "gate"]!r}]\n'.replace("'", '"'))
     monkeypatch.setenv("GD_FAKE_IMPROVE_WRITE", f"{cfg.prompts_dir / 'judge.md'}::JUDGE {{idea}} {{docstring}} {{metrics}}\n")
     assert main(["--root", str(cfg.root), "flywheel", "--cycles", "2", "--n", "1", "--seed", "5", "--parallel", "2"]) == 0
     assert (cfg.root / "runs").exists()

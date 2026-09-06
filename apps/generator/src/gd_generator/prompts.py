@@ -191,8 +191,9 @@ class Prompts:
         return self.render("tests", slug=slug, players=", ".join(map(str, range(players[0], players[1] + 1))),
                            docstring=rules_docstring(game_dir), rules=(game_dir / "rules.py").read_text())
 
-    def judge(self, idea: str, game_dir: Path, metrics: str) -> str:
-        return self.render("judge", idea=idea[:8000], docstring=rules_docstring(game_dir), metrics=metrics)
+    def judge(self, idea: str, game_dir: Path, metrics: str, trace: str = "") -> str:
+        return self.render("judge", idea=idea[:8000], docstring=rules_docstring(game_dir), metrics=metrics,
+                           trace=trace or "(no transcript available)")
 
 
 def files_text(gdir: Path, names=("spec.json", "rules.py", "test_rules.py")) -> str:

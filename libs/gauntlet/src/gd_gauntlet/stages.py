@@ -1,4 +1,4 @@
-"""Gauntlet stages s0..s7. Each stage is ``fn(ctx) -> StageResult``. Pure except for reading spec files."""
+"""Gauntlet stages s0..s8. Each stage is ``fn(ctx) -> StageResult``. Pure except for reading spec files."""
 from __future__ import annotations
 
 import math
@@ -266,6 +266,67 @@ def s6_length(ctx: Context) -> StageResult:
     return StageResult("s6_length", not reasons, metrics, "; ".join(reasons))
 
 
+def _leaders(scores: list[float]) -> frozenset[int]:
+    top = max(scores)
+    return frozenset(i for i, v in enumerate(scores) if v == top)
+
+
+def tension_of(trace: list[list[float]]) -> dict[str, float] | None:
+    """How long the outcome stayed open, from one game's per-turn score trace.
+
+    ``lead_changes``: how often the set of leaders changed.
+    ``decided_at``: fraction of the game elapsed when the winner took the lead for the last time; 0.9 means
+    the winner was still catchable almost to the end, 0.1 means a runaway leader.
+    ``comeback``: the winner was not leading at the three-quarter mark.
+    """
+    if len(trace) < 4:
+        return None
+    winner = _leaders(trace[-1])
+    changes = sum(1 for i in range(1, len(trace)) if _leaders(trace[i]) != _leaders(trace[i - 1]))
+    behind = [i for i, sc in enumerate(trace) if not (_leaders(sc) & winner)]
+    decided = (max(behind) + 1) / len(trace) if behind else 0.0
+    return {"lead_changes": float(changes), "decided_at": decided,
+            "comeback": float(not (_leaders(trace[int(len(trace) * 0.75)]) & winner))}
+
+
+def s8_tension(ctx: Context) -> StageResult:
+    """Was the winner ever in doubt? A game nobody can catch up in is balanced but not fun."""
+    per_count: dict[str, Any] = {}
+    lead_changes, decided_at, comebacks = [], [], []
+    for n in ctx.counts():
+        samples = []
+        for i in range(ctx.cfg.tension_games):
+            # greedy seats mixed with random ones: a plausible table, not a coin-flip one
+            agents = [GreedyAgent() if p % 2 == 0 else RandomAgent() for p in range(n)]
+            r = play_game(ctx.make_game(n, ctx.cfg.seed + i), agents, seed=ctx.cfg.seed + i,
+                          max_turns=ctx.cfg.max_turns, record_scores=True)
+            if r.error:
+                continue
+            t = tension_of(r.score_trace)
+            if t:
+                samples.append(t)
+        if not samples:
+            continue
+        per_count[f"p{n}"] = {k: round(mean(s[k] for s in samples), 3) for k in ("lead_changes", "decided_at", "comeback")}
+        lead_changes.append(per_count[f"p{n}"]["lead_changes"])
+        decided_at.append(per_count[f"p{n}"]["decided_at"])
+        comebacks.append(per_count[f"p{n}"]["comeback"])
+    if not lead_changes:
+        return _fail("s8_tension", "no completed games to measure", **per_count)
+    metrics = {**per_count, "mean_lead_changes": round(mean(lead_changes), 2),
+               "mean_decided_at": round(mean(decided_at), 3), "mean_comeback_rate": round(mean(comebacks), 3)}
+    reasons = []
+    if metrics["mean_lead_changes"] < ctx.cfg.min_lead_changes:
+        reasons.append(f"only {metrics['mean_lead_changes']} lead changes per game "
+                       f"(< {ctx.cfg.min_lead_changes}): the standings barely move, so play has little drama. "
+                       "Add ways to catch the leader, swing scoring, or points that land late")
+    if metrics["mean_decided_at"] < ctx.cfg.min_decided_at:
+        reasons.append(f"the winner takes the final lead {metrics['mean_decided_at']:.0%} into the game "
+                       f"(< {ctx.cfg.min_decided_at:.0%}): an early leader is never caught. "
+                       "Delay or hide some scoring, or give trailing players a real lever")
+    return _fail("s8_tension", "; ".join(reasons), **metrics) if reasons else _ok("s8_tension", **metrics)
+
+
 def fingerprint(spec: GameSpec) -> frozenset[str]:
     c = spec.components
     return frozenset({*(f"mech:{m.strip().lower()}" for m in spec.mechanics),
@@ -301,7 +362,7 @@ def s7_novelty(ctx: Context) -> StageResult:
 
 
 STAGES: list[Callable[[Context], StageResult]] = [
-    s0_schema, s1_import, s2_playable, s3_balance, s4_skill, s5_decisions, s6_length, s7_novelty,
+    s0_schema, s1_import, s2_playable, s3_balance, s4_skill, s5_decisions, s6_length, s7_novelty, s8_tension,
 ]
 
 

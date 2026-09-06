@@ -78,6 +78,7 @@ class IdeaResult(BaseModel):
     infra: bool = False
     error: str = ""
     promoted: bool = False
+    rejected: bool = False           # passed the gauntlet but scored below min_judge_total
     timings: dict[str, float] = Field(default_factory=dict)
 
     @property

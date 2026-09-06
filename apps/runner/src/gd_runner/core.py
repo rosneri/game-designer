@@ -160,6 +160,55 @@ def sim(
 
 
 # ---------------------------------------------------------------- play
+def trace(game_dir: str | Path, n_players: int, seed: int = 0, agents: list[str] | None = None,
+          head: int = 25, tail: int = 15) -> dict[str, Any]:
+    """One readable game transcript: who moved, what they did, and how the score stood after it.
+
+    A rulesheet says what a game permits; a transcript shows what it plays like. Long games are elided in
+    the middle so the opening and the finish both survive.
+    """
+    spec, game = build_game(game_dir, n_players, seed=seed)
+    names = agents or ["greedy", "random"]
+    seats = [make_agent(names[i % len(names)]) for i in range(n_players)]
+    rng, arng = Random(seed), Random(seed ^ 0x5EED)
+    state = game.setup(rng)
+    lines: list[str] = []
+    turns = 0
+    error = None
+    try:
+        while not game.is_terminal(state) and turns < 2000:
+            p = game.current_player(state)
+            legal = game.legal_actions(state)
+            if not legal:
+                error = "no legal actions in non-terminal state"
+                break
+            a = seats[p].act(game, state, legal, arng)
+            state = game.step(state, a, rng)
+            turns += 1
+            scores = [round(float(x), 1) for x in game.scores(state)]
+            lines.append(f"t{turns:<4} P{p} {names[p % len(names)]:<6} {_repr(a):<34} "
+                         f"options={len(legal):<4} scores={scores}")
+    except Exception as e:  # noqa: BLE001 - a broken game should still yield a partial transcript
+        error = f"{type(e).__name__}: {e}"
+    body = lines if len(lines) <= head + tail else [*lines[:head],
+                                                    f"... {len(lines) - head - tail} turns elided ...",
+                                                    *lines[-tail:]]
+    final = [round(float(x), 1) for x in game.scores(state)]
+    best = max(final) if final else 0
+    return {"slug": spec.slug, "players": n_players, "seed": seed, "agents": names, "turns": turns,
+            "error": error, "final_scores": final, "winners": [i for i, v in enumerate(final) if v == best],
+            "describe": game.describe(state) if hasattr(game, "describe") else "",
+            "lines": body}
+
+
+def trace_text(t: dict[str, Any]) -> str:
+    head = (f"# {t['slug']} — {t['players']} players, seats: {', '.join(t['agents'])}, seed {t['seed']}\n"
+            f"# {t['turns']} turns; final scores {t['final_scores']}; winner seat(s) {t['winners']}")
+    tail = f"\nfinal state: {t['describe']}" if t.get("describe") else ""
+    err = f"\nERROR: {t['error']}" if t.get("error") else ""
+    return head + "\n" + "\n".join(t["lines"]) + tail + err
+
+
 def play(
     game_dir: str | Path,
     players: int,

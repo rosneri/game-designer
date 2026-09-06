@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 from .compat import result_to_dict, run_gauntlet
-from .core import ValidationError, play, sim, validate
+from .core import ValidationError, play, sim, trace, trace_text, validate
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -30,6 +30,14 @@ def build_parser() -> argparse.ArgumentParser:
     pl.add_argument("--players", type=int, required=True)
     pl.add_argument("--gm", choices=["llm", "scripted"], default="scripted")
     pl.add_argument("--seed", type=int, default=None)
+
+    tr = sub.add_parser("trace", help="print one readable game transcript (turns, actions, running scores)")
+    tr.add_argument("game_dir")
+    tr.add_argument("--players", type=int, required=True)
+    tr.add_argument("--seed", type=int, default=0)
+    tr.add_argument("--agents", default="greedy,random", help="comma list, one per seat (cycled)")
+    tr.add_argument("--head", type=int, default=25, help="turns to show from the start")
+    tr.add_argument("--tail", type=int, default=15, help="turns to show from the end")
 
     v = sub.add_parser("validate", help="fast check: spec loads, module imports, 3 random games")
     v.add_argument("game_dir")
@@ -60,6 +68,13 @@ def cmd_play(a) -> int:
     return 0
 
 
+def cmd_trace(a) -> int:
+    agents = [x.strip() for x in a.agents.split(",") if x.strip()]
+    t = trace(a.game_dir, a.players, seed=a.seed, agents=agents, head=a.head, tail=a.tail)
+    print(trace_text(t))
+    return 1 if t["error"] else 0
+
+
 def cmd_validate(a) -> int:
     try:
         info = validate(a.game_dir, n_games=a.games)
@@ -73,7 +88,8 @@ def cmd_validate(a) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
-    code = {"gauntlet": cmd_gauntlet, "sim": cmd_sim, "play": cmd_play, "validate": cmd_validate}[a.cmd](a)
+    code = {"gauntlet": cmd_gauntlet, "sim": cmd_sim, "play": cmd_play, "trace": cmd_trace,
+            "validate": cmd_validate}[a.cmd](a)
     if argv is None:
         sys.exit(code)
     return code

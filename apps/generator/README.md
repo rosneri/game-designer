@@ -86,6 +86,23 @@ generator flywheel --cycles 10 --n 10 --label night-run --push   # start
 generator flywheel --cycles 10 --n 10 --label night-run --push   # continue after a kill
 ```
 
+## Judging
+
+The judge reads three things: the rulesheet, the gauntlet metrics, and a **transcript of real play** produced
+by `runner trace` — turn by turn, with the score after every move. Before transcripts it rated 24 of 25 games
+exactly 6 for fun and returned "iterate" every single time; totals spanned 28-34 with a standard deviation of
+1.27 on a 50-point scale, which is not a measurement. Re-judging two of those games with the transcript scored
+them 17 and 18, citing the run of forced moves and the runaway leader that the prose had hidden.
+
+A score below `min_judge_total` blocks promotion: the catalog is what later ideas are told to beat, so weak
+games in it lower the bar for everything after them. **That threshold is not yet calibrated** — the two scales
+are not comparable, so set it from the distribution of a full batch judged by the current prompt.
+
+`s8_tension` measures the same thing deterministically: lead changes per game, `decided_at` (how far into the
+game the winner takes their final lead) and the comeback rate. Its thresholds sit at the 25th percentile of the
+29-game catalog, so the least dramatic quarter fails. `s7_novelty` moved from 0.9 to 0.75 because 0.9 never
+fired once in 29 games.
+
 ## Commands
 
 ```bash
@@ -99,6 +116,7 @@ generator harness                               # print the ledger
 generator rollback <event-id>                   # undo one refinement
 generator report runs/<run>                     # rewrite REPORT.md
 generator dry-run --n 2                         # print prompts, call nothing
+runner trace games/<slug> --players 3           # one readable transcript with running scores
 ```
 
 ## Configuration
