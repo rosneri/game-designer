@@ -1,4 +1,4 @@
-"""Ferryman — pay a card to carry a passenger across the river, and watch your last fare.
+"""Ferryman — pay a card to carry a passenger across the river, and hide who you really work for.
 
 RULESHEET
 =========
@@ -7,11 +7,15 @@ Card rank: A=1, 2-10 face value, J=11, Q=12, K=13.
 
 Setup
 -----
-Shuffle the deck. Deal 4 cards face-down to each player (their hand). Turn 4 cards face-up in a
-row: this is the **Dock**. The rest of the deck stays face-down. The **Toll** pile starts empty
-(face-up stack; only its top card is ever available). Each player has an empty face-up **Shore**,
-kept as a *stack in the order the passengers landed*, so everyone can see whose passenger came
-ashore last. Seat 0 starts round 1; play is clockwise. The single reshuffle is "unused".
+Shuffle the deck. Deal 4 cards face-down to each player (their hand). Then deal each player one more
+card face-down, unseen by the others: this is their **Charter**. Look at your own Charter, then keep
+it face-down in front of you. Only its *suit* matters; the Charter is never played, never enters your
+hand, and is revealed only at the end of the game.
+
+Turn 4 cards face-up in a row: this is the **Dock**. The rest of the deck stays face-down. The
+**Toll** pile starts empty (face-up stack; only its top card is ever available). Each player has an
+empty face-up **Shore**, kept as a *stack in the order the passengers landed*, so everyone can see
+whose passenger came ashore last. Seat 0 starts round 1; play is clockwise.
 
 Rounds, the start seat and the Tide
 -----------------------------------
@@ -42,28 +46,42 @@ Turn — do exactly one
    hand holds fewer than 6 cards.
 5. **Pass** — legal only when Ferry, Poach, Wade and Draw are all illegal.
 
-Nothing enters your hand without spending a whole turn on it, so every card in hand is a coin.
+Nothing enters your hand without spending a whole turn on it, so every card in hand is a coin. Every
+draw also burns one of the deck's last cards, and the deck running out ends the game.
 
-The Ledger — how passengers pay
--------------------------------
-Passengers pay nothing when they land. Your **ferry total** is always read fresh off your Shore,
-so it changes the moment a passenger leaves it. For each suit separately, look at your Shore cards
-of that suit and sort them by rank:
+The Ledger — the public total
+-----------------------------
+Passengers pay nothing when they land. Your **ferry total** is always read fresh off your Shore, so
+it changes the moment a passenger leaves it. For each suit separately, look at your Shore cards of
+that suit and sort them by rank:
 * the **highest** of that suit pays its full rank,
 * the **second highest** pays half its rank, rounded down,
 * every further card of that suit pays exactly 1.
-Add your kin points. That is your ferry total, at any moment of the game and at the end.
+Add your kin points. That is your ferry total: it is public, it decides who may poach whom, and it
+is the visible part of your final score.
 
-So a second King of your best suit is nearly worthless, while a first card in a fresh suit pays in
-full — and the passenger you just landed is the only one a trailing rival can take away from you.
+So a second King of your best suit is nearly worthless on the Ledger, while a first card in a fresh
+suit pays in full — and the passenger you just landed is the only one a trailing rival can take.
 
-Deck exhaustion and the one reshuffle
--------------------------------------
-The moment the deck runs out (the card that empties it may be taken by a refill or by a draw):
-if the reshuffle is still "unused", shuffle the whole Toll pile face-down into a new deck, leave
-the Toll pile empty and mark the reshuffle "used" — this happens even if the Toll pile was empty,
-and if the new deck is therefore empty the game end is triggered at once. If the reshuffle was
-already "used", the game end is triggered.
+The Charter — the hidden part of your score
+-------------------------------------------
+Your Charter is a secret patron of one suit. At the end of the game reveal it and score:
+* **+2 for every Shore card of the Charter's suit**, and
+* **+6 more if you hold three or more Shore cards of that suit** (the patron pays the full crossing).
+
+The Charter pays nothing during play and never shows on your ferry total. It deliberately fights the
+Ledger: piling a third and fourth card into one suit is near-worthless publicly (1 point each) but
+worth 2 each plus a 6-point jump to your patron. So the player who looks becalmed may be loading a
+suit on purpose, and the player who looks like the runaway leader may have no hidden points at all.
+Since totals are read publicly, poachers rob the visible leader — who is not always the real one.
+Watch which suit a rival keeps stacking, and think twice before you stack yours where they can count
+it. A stolen passenger takes its Charter value with it, so a poach can break a rival's three-card
+set as well as their Ledger.
+
+Deck exhaustion — one crossing only
+-----------------------------------
+There is no reshuffle. The moment the deck runs out (the card that empties it may be taken by a
+refill or by a draw) the game end is triggered.
 
 Game end
 --------
@@ -75,9 +93,9 @@ The game ends when any of these happens:
 
 Final scoring
 -------------
-Your score is your ferry total (Ledger + kin points), plus for each of the four suits +5 to the
-player with strictly the most Shore cards of that suit (nobody scores that suit if two or more
-players tie), minus 1 for every card left in your hand.
+Reveal all Charters. Your score is your ferry total (Ledger + kin points), plus your Charter bonus,
+plus for each of the four suits +5 to the player with strictly the most Shore cards of that suit
+(nobody scores that suit if two or more players tie), minus 1 for every card left in your hand.
 
 Highest score wins. Ties are broken in this order: most Shore cards, then highest single Shore card
 rank, then fewest cards in hand, then the higher seat number. This implementation folds the
@@ -88,28 +106,35 @@ Worked example turn
 -------------------
 Round 3, Tide 5 (5s and Queens are buoyant). The Dock shows K♠ 9♦ 4♥ 7♣. Beth's Shore stack is
 (3♠, Q♦) — Q♦ on top — and her ferry total is 3♠ full (3) + Q♦ full (12) = 15. Ann's Shore is
-(J♠, 2♠): J♠ pays 11, 2♠ pays half of 2 = 1, so Ann's total is 12. Ann holds Q♥ 8♦ 5♣ 6♠.
-* Ann could ferry K♠ with the buoyant Q♥ (a Queen pays for anything at Tide 5): K♠ would land on her
-  Shore, but it is her second spade after J♠, so it would pay only 13 // 2 = 6, lifting her to 18.
+(J♠, 2♠): J♠ pays 11, 2♠ pays half of 2 = 1, so Ann's total is 12. Ann holds Q♥ 8♦ 5♣ 6♠ and her
+secret Charter is the 4♠, so spades are her patron suit.
+* Ann could ferry K♠ with the buoyant Q♥ (a Queen pays for anything at Tide 5). Publicly that is a
+  poor buy — K♠ is her second spade after J♠, so the Ledger pays only 13 // 2 = 6, lifting her to 18
+  — but spades are her Charter suit, so it also adds 2 hidden points, and one more spade after it
+  would add 2 more and unlock the hidden +6.
 * Instead Ann poaches: Beth's total (15) is strictly higher than hers (12), so Ann may take the top
   of Beth's Shore, the Q♦. She pays Q♥ (rank 12 >= 12) onto the Toll pile and moves Q♦ to her Shore.
-  Beth drops to 3 and Ann rises to 11 + 1 + 12 = 24. No kin points: poaching pays none.
-* The Q♥ now sits on the Toll pile, so Beth may spend her next turn wading it back — and Ann's Q♦
-  is now the top of Ann's Shore, so any player who falls behind Ann can poach it straight back.
+  Beth drops to 3 and Ann rises to 11 + 1 + 12 = 24 publicly. No kin points: poaching pays none.
+* Ann is now the visible leader, so the whole table may rob her Q♦ — and her real plan, spades, is
+  still invisible.
 
 Worked end-of-game scoring
 --------------------------
-Ann's Shore is (J♠, 2♠, Q♦, 7♦, 5♦) and she took 2 kin points; she holds 3 cards.
+Ann's Shore is (J♠, 2♠, Q♦, 7♦, 5♦), she took 2 kin points, she holds 3 cards, and her Charter is
+the 4♦ (diamonds).
 * Spades: J♠ pays 11, 2♠ pays 2 // 2 = 1 → 12.
 * Diamonds: Q♦ pays 12, 7♦ pays 7 // 2 = 3, 5♦ pays 1 → 16.
-* Ledger 28 + 2 kin = 30. She has the most diamonds of anyone: +5. Hand penalty: -3.
-* Final score 32.
+* Ledger 28 + 2 kin = 30 (this is what everyone could see all game).
+* Charter (diamonds): three Shore diamonds → 3 × 2 = 6, plus the 6-point set bonus → +12.
+* Most diamonds at the table: +5. Hand penalty: -3.
+* Final score 44 — fourteen points more than her public total, which is why Beth stopped poaching
+  her too early.
 
 Strategy
 --------
-Open a fresh suit rather than pile a second big card into an old one, keep a cheap passenger on top
-of your Shore as a shield when you lead, and remember that the moment you take the lead the whole
-table is allowed to rob you.
+Open a fresh suit for public points, but slip a quiet third card of your Charter suit in while the
+leader is being robbed; keep a cheap passenger on top of your Shore as a shield when you lead; and
+remember the deck is short — a draw is a whole turn *and* one crossing closer to the last bell.
 """
 from __future__ import annotations
 
@@ -127,11 +152,15 @@ DOCK_SIZE = 4
 KIN_BONUS = 2
 SUIT_BONUS = 5
 HAND_PENALTY = 1
+CHARTER_PER_CARD = 2
+CHARTER_SET_SIZE = 3
+CHARTER_SET_BONUS = 6
 
 
 @dataclass(frozen=True)
 class FerryState:
     hands: tuple[tuple[Card, ...], ...]
+    charters: tuple[Card, ...]  # secret: only its suit matters, revealed at the end
     shore: tuple[tuple[Card, ...], ...]  # stack in landing order; last element is the top
     kin: tuple[int, ...]
     dock: tuple[Card, ...]
@@ -143,7 +172,6 @@ class FerryState:
     turn_in_round: int
     round_index: int
     passes: int
-    reshuffle_used: bool = False
     end_triggered: bool = False
     over: bool = False
 
@@ -163,6 +191,12 @@ def ledger(shore: tuple[Card, ...]) -> int:
     return total
 
 
+def charter_bonus(shore: tuple[Card, ...], charter: Card) -> int:
+    """Hidden patron pay: 2 per Shore card of the Charter suit, +6 more at three or more."""
+    n = sum(c.suit == charter.suit for c in shore)
+    return CHARTER_PER_CARD * n + (CHARTER_SET_BONUS if n >= CHARTER_SET_SIZE else 0)
+
+
 class Ferryman:
     """See the module docstring for the rulesheet."""
 
@@ -176,9 +210,11 @@ class Ferryman:
     def setup(self, rng: Random) -> FerryState:
         deck = Deck(jokers=0).shuffle(rng)
         hands = tuple(tuple(sorted(h)) for h in deck.deal(self.n_players, START_HAND))
+        charters = tuple(deck.draw(self.n_players))
         dock = tuple(deck.draw(DOCK_SIZE))
         return FerryState(
             hands=hands,
+            charters=charters,
             shore=tuple(() for _ in range(self.n_players)),
             kin=(0,) * self.n_players,
             dock=dock,
@@ -265,16 +301,7 @@ class Ferryman:
             emptied = not deck
 
         passes = s.passes + 1 if a[0] == "pass" else 0
-        end_triggered = s.end_triggered
-        reshuffle_used = s.reshuffle_used
-        if emptied:  # the deck just ran out
-            if not reshuffle_used:
-                deck, toll = toll, []
-                rng.shuffle(deck)
-                reshuffle_used = True
-                end_triggered = end_triggered or not deck  # empty Toll pile -> empty new deck
-            else:
-                end_triggered = True
+        end_triggered = s.end_triggered or emptied  # no reshuffle: one crossing only
 
         s = replace(
             s,
@@ -285,7 +312,6 @@ class Ferryman:
             deck=tuple(deck),
             toll=tuple(toll),
             passes=passes,
-            reshuffle_used=reshuffle_used,
             end_triggered=end_triggered,
         )
 
@@ -314,8 +340,10 @@ class Ferryman:
 
     # -- scoring -------------------------------------------------------------------------
     def scores(self, s: FerryState) -> list[float]:
-        """Ledger + kin + suit majorities - cards in hand, with the tie-break as a sub-point tail."""
+        """Ledger + kin + hidden Charter + suit majorities - hand, tie-break as a sub-point tail."""
         out = [float(self.ferry_total(s, p)) for p in range(self.n_players)]
+        for p in range(self.n_players):
+            out[p] += charter_bonus(s.shore[p], s.charters[p])
         for suit in Suit:
             counts = [sum(c.suit == suit for c in sh) for sh in s.shore]
             best = max(counts)
@@ -335,6 +363,7 @@ class Ferryman:
     def observe(self, s: FerryState, p: int) -> tuple:
         return (
             ("hand", tuple(str(c) for c in s.hands[p])),
+            ("charter", str(s.charters[p])),
             ("dock", tuple(str(c) for c in s.dock)),
             ("toll_top", str(s.toll[-1]) if s.toll else None),
             ("toll_size", len(s.toll)),
@@ -346,7 +375,6 @@ class Ferryman:
             ("to_act", s.cur),
             ("round", s.round_index),
             ("start_seat", s.start_seat),
-            ("reshuffled", s.reshuffle_used),
             ("ending", s.end_triggered),
         )
 
@@ -357,9 +385,8 @@ class Ferryman:
         return (
             f"round {s.round_index} tide {s.tide} (buoyant: {s.tide}/{s.tide + 7}) seat {s.cur} to act "
             f"(round starts at seat {s.start_seat}); dock: {dock}; toll top {top} ({len(s.toll)}); "
-            f"deck {len(s.deck)}"
-            f"{' [reshuffled]' if s.reshuffle_used else ''}{' [ending]' if s.end_triggered else ''}; "
-            f"totals {[self.ferry_total(s, p) for p in range(self.n_players)]}; "
+            f"deck {len(s.deck)}{' [ending]' if s.end_triggered else ''}; "
+            f"public totals {[self.ferry_total(s, p) for p in range(self.n_players)]} (charters hidden); "
             f"exposed {tops}; hands {[len(h) for h in s.hands]}"
         )
 

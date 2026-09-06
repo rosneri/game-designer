@@ -1,8 +1,8 @@
 {
-  "game_dir": "/Users/neri/Developer/game-designer/runs/it-ferryman-1/ferryman/workspace/games/ferryman",
+  "game_dir": "/Users/neri/Developer/game-designer/runs/it-ferryman-2/ferryman/workspace/games/ferryman",
   "passed": true,
   "failed_stage": null,
-  "seconds": 58.61,
+  "seconds": 37.41,
   "stages": [
     {
       "name": "s0_schema",
@@ -37,23 +37,23 @@
       "passed": true,
       "metrics": {
         "p2": {
-          "mean_turns": 81.9,
-          "max_turns": 98,
+          "mean_turns": 55.4,
+          "max_turns": 68,
           "error_rate": 0.0
         },
         "p3": {
-          "mean_turns": 81.4,
-          "max_turns": 99,
+          "mean_turns": 52.2,
+          "max_turns": 66,
           "error_rate": 0.0
         },
         "p4": {
-          "mean_turns": 86.5,
-          "max_turns": 100,
+          "mean_turns": 46.7,
+          "max_turns": 52,
           "error_rate": 0.0
         }
       },
       "reason": "",
-      "seconds": 2.164
+      "seconds": 1.342
     },
     {
       "name": "s3_balance",
@@ -61,85 +61,85 @@
       "metrics": {
         "p2": {
           "seat_win_rates": [
-            0.463,
-            0.537
+            0.477,
+            0.523
           ],
           "draw_rate": 0.0
         },
         "p3": {
           "seat_win_rates": [
-            0.303,
-            0.323,
-            0.373
+            0.337,
+            0.363,
+            0.3
           ],
           "draw_rate": 0.0
         },
         "p4": {
           "seat_win_rates": [
-            0.23,
-            0.27,
-            0.2,
-            0.3
+            0.24,
+            0.237,
+            0.277,
+            0.247
           ],
           "draw_rate": 0.0
         }
       },
       "reason": "",
-      "seconds": 12.188
+      "seconds": 7.45
     },
     {
       "name": "s4_skill",
       "passed": true,
       "metrics": {
         "p2": {
-          "greedy_win_rate": 0.783,
-          "dominance": 0.567,
+          "greedy_win_rate": 0.833,
+          "dominance": 0.667,
           "mcts_win_rate": 1.0
         },
         "p3": {
-          "greedy_win_rate": 0.717,
-          "dominance": 0.575
+          "greedy_win_rate": 0.692,
+          "dominance": 0.537
         },
         "p4": {
-          "greedy_win_rate": 0.608,
-          "dominance": 0.478
+          "greedy_win_rate": 0.6,
+          "dominance": 0.467
         },
-        "skill_dominance": 0.54
+        "skill_dominance": 0.557
       },
       "reason": "",
-      "seconds": 39.76
+      "seconds": 25.841
     },
     {
       "name": "s5_decisions",
       "passed": true,
       "metrics": {
-        "mean_legal_actions": 6.52,
-        "forced_share": 0.013,
-        "turns_sampled": 7494
+        "mean_legal_actions": 7.07,
+        "forced_share": 0.005,
+        "turns_sampled": 4628
       },
       "reason": "",
-      "seconds": 0.002
+      "seconds": 0.001
     },
     {
       "name": "s6_length",
       "passed": true,
       "metrics": {
-        "minutes_per_turn": 0.371,
+        "minutes_per_turn": 0.382,
         "p2": {
-          "mean_turns": 81.9,
-          "est_minutes": 30.3
+          "mean_turns": 55.4,
+          "est_minutes": 21.2
         },
         "p3": {
-          "mean_turns": 81.4,
-          "est_minutes": 30.2
+          "mean_turns": 52.2,
+          "est_minutes": 20.0
         },
         "p4": {
-          "mean_turns": 86.5,
-          "est_minutes": 32.1
+          "mean_turns": 46.7,
+          "est_minutes": 17.8
         },
         "est_minutes_range": [
-          30.2,
-          32.1
+          17.8,
+          21.2
         ]
       },
       "reason": "",
@@ -161,13 +161,15 @@
           "mech:diminishing-returns",
           "mech:hand-limit",
           "mech:hand-management",
+          "mech:hidden-scoring",
           "mech:market-row",
+          "mech:secret-objective",
           "mech:set-collection",
           "mech:take-that",
           "order:variable"
         ],
         "nearest": "ossuary",
-        "similarity": 0.389
+        "similarity": 0.35
       },
       "reason": "",
       "seconds": 0.006
@@ -177,26 +179,26 @@
       "passed": true,
       "metrics": {
         "p2": {
-          "lead_changes": 10.417,
-          "decided_at": 0.607,
-          "comeback": 0.167
+          "lead_changes": 8.167,
+          "decided_at": 0.659,
+          "comeback": 0.333
         },
         "p3": {
-          "lead_changes": 17.417,
-          "decided_at": 0.919,
+          "lead_changes": 9.25,
+          "decided_at": 0.813,
           "comeback": 0.417
         },
         "p4": {
-          "lead_changes": 13.75,
-          "decided_at": 0.826,
-          "comeback": 0.583
+          "lead_changes": 6.25,
+          "decided_at": 0.71,
+          "comeback": 0.417
         },
-        "mean_lead_changes": 13.86,
-        "mean_decided_at": 0.784,
+        "mean_lead_changes": 7.89,
+        "mean_decided_at": 0.727,
         "mean_comeback_rate": 0.389
       },
       "reason": "",
-      "seconds": 4.488
+      "seconds": 2.77
     }
   ]
 }

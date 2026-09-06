@@ -232,3 +232,73 @@ def test_scores_follow_the_shore_after_a_steal(n):
         s = game.step(s, RandomAgent().act(game, s, legal, rng), rng)
         steps += 1
     pytest.fail("no poach was ever available")
+
+
+def test_each_player_has_one_secret_charter():
+    for n in PLAYER_COUNTS:
+        game = GAME(n)
+        rng = __import__("random").Random(19)
+        s = game.setup(rng)
+        assert len(s.charters) == n
+        # a Charter is not in anyone's hand and not on the Dock
+        board = [str(c) for h in s.hands for c in h] + [str(c) for c in s.dock]
+        for c in s.charters:
+            assert str(c) not in board
+
+
+@pytest.mark.parametrize("n", PLAYER_COUNTS)
+def test_observe_hides_other_charters(n):
+    game = GAME(n)
+    rng = __import__("random").Random(37)
+    s = game.setup(rng)
+    for p in range(n):
+        obs = dict(game.observe(s, p))
+        assert obs["charter"] == str(s.charters[p])
+        # nothing in the observation reveals a rival's Charter card
+        blob = repr(obs)
+        for q in range(n):
+            if q != p and str(s.charters[q]) not in [str(c) for c in s.dock]:
+                assert blob.count(str(s.charters[q])) == 0
+
+
+def test_charter_bonus_pays_per_card_with_a_set_jump():
+    cb = MOD.charter_bonus
+    ch = Card(4, Suit.SPADES)
+    assert cb((), ch) == 0
+    assert cb((Card(9, Suit.HEARTS),), ch) == 0
+    assert cb((Card(9, Suit.SPADES),), ch) == 2
+    assert cb((Card(9, Suit.SPADES), Card(2, Suit.SPADES)), ch) == 4
+    # the third card of the Charter suit unlocks the hidden set bonus
+    assert cb((Card(9, Suit.SPADES), Card(2, Suit.SPADES), Card(5, Suit.SPADES)), ch) == 12
+
+
+def test_charter_is_hidden_from_the_public_total_but_scores_at_the_end():
+    game = GAME(2)
+    rng = __import__("random").Random(41)
+    s = game.setup(rng)
+    ch = s.charters[0]
+    shore = (Card(9, ch.suit), Card(2, ch.suit), Card(5, ch.suit))
+    s = __import__("dataclasses").replace(s, shore=(shore, ()), hands=((), ()), over=True)
+    public = game.ferry_total(s, 0)
+    assert public == MOD.ledger(shore)  # the Charter never shows in the public total
+    assert game.scores(s)[0] > public + 12  # ... but it pays 12 at the end, plus the suit majority
+
+
+@pytest.mark.parametrize("n", PLAYER_COUNTS)
+def test_no_reshuffle_and_the_game_is_one_crossing(n):
+    """The deck is never rebuilt: running it out triggers the end within one round."""
+    game = GAME(n)
+    rng = __import__("random").Random(43)
+    s = game.setup(rng)
+    steps = 0
+    seen_empty_deck = False
+    while not game.is_terminal(s) and steps < 300:
+        if not s.deck:
+            seen_empty_deck = True
+            assert s.end_triggered or not s.dock
+        legal = game.legal_actions(s)
+        s = game.step(s, RandomAgent().act(game, s, legal, rng), rng)
+        steps += 1
+    assert game.is_terminal(s)
+    assert seen_empty_deck or not s.dock
+    assert not hasattr(s, "reshuffle_used")

@@ -1,7 +1,7 @@
 {
   "slug": "ferryman",
   "name": "Ferryman",
-  "tagline": "Every card in hand is a coin; the passenger you landed last is the one they can steal.",
+  "tagline": "Your public total invites robbery; your secret Charter is where the real money is.",
   "players_min": 2,
   "players_max": 4,
   "components": {
@@ -15,17 +15,19 @@
     "card-economy",
     "market-row",
     "set-collection",
+    "secret-objective",
+    "hidden-scoring",
     "diminishing-returns",
     "take-that",
     "catch-up",
     "dice-modifier",
     "hand-limit"
   ],
-  "core_loop": "On your turn ferry a Dock passenger by paying an equal-or-higher (or buoyant) hand card onto the shared Toll pile, or pay a card to poach the newest passenger off a player who is ahead of you, or wade a toll card or draw.",
-  "win_condition": "Most points from the Shore ledger (per suit: highest card full, second half, rest 1 each), plus kin fares and suit majorities, minus one per card left in hand.",
+  "core_loop": "On your turn ferry a Dock passenger by paying an equal-or-higher (or buoyant) hand card onto the shared Toll pile, or pay a card to poach the newest passenger off a player whose public total is ahead of yours, or wade a toll card or draw — while quietly stacking the suit of your secret Charter.",
+  "win_condition": "Most points from the public Shore ledger (per suit: highest full, second half, rest 1 each) plus kin fares, suit majorities and your revealed Charter bonus, minus one per card left in hand.",
   "est_minutes": [
-    20,
-    35
+    15,
+    25
   ],
   "gm": {
     "enabled": false,
