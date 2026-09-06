@@ -38,7 +38,7 @@ DEFAULT_STEPS: dict[str, StepRoute] = {
     # quality needs a model that will actually discriminate.
     "judge": StepRoute(model="anthropic/claude-opus-5", thinking="medium", timeout=600),
     # second design pass over a finished game: substantial rules changes, so the code model with tools
-    "iterate": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1200, tools=True),
+    "iterate": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1800, tools=True),
     # self-improvement: reflect on a finished run (fable) and patch the harness itself (opus, with tools)
     "refine": StepRoute(backend="claude", model="anthropic/claude-fable-5-1", thinking="medium", timeout=600),
     "improve": StepRoute(model="anthropic/claude-opus-5", thinking="high", timeout=1800, tools=True),

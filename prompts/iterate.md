@@ -50,6 +50,10 @@ Rules for the change:
 - Keep it implementable and deterministic under the same contract, and keep the same components budget.
 - Update `test_rules.py` for anything you change. It must still pass, and so must every gauntlet stage.
 
+Time and tool budget: about 15 minutes. Check your work with the FAST commands only —
+`{validate_cmd}` (seconds) and `{sim_cmd}` — and run `{gauntlet_cmd}` at most ONCE, right before you answer.
+The harness re-runs every check itself, so spending your budget re-measuring is wasted; spend it on the design.
+
 Explain the change and your reasoning in three or four sentences first. Then return EVERY file you changed,
 complete, in path-tagged fenced blocks (```python path=games/{slug}/rules.py and so on). Do not return files
 you did not change. The game directory is {game_dir}; do not touch anything outside it.
