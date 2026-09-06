@@ -1,8 +1,8 @@
 {
-  "game_dir": "games/loom",
-  "passed": false,
-  "failed_stage": "s4_skill",
-  "seconds": 37.24,
+  "game_dir": "/Users/neri/Developer/game-designer/runs/it-loom-2/loom/workspace/games/loom",
+  "passed": true,
+  "failed_stage": null,
+  "seconds": 32.25,
   "stages": [
     {
       "name": "s0_schema",
@@ -37,23 +37,23 @@
       "passed": true,
       "metrics": {
         "p2": {
-          "mean_turns": 54,
-          "max_turns": 54,
+          "mean_turns": 42,
+          "max_turns": 42,
           "error_rate": 0.0
         },
         "p3": {
-          "mean_turns": 81,
-          "max_turns": 81,
+          "mean_turns": 63,
+          "max_turns": 63,
           "error_rate": 0.0
         },
         "p4": {
-          "mean_turns": 108,
-          "max_turns": 108,
+          "mean_turns": 84,
+          "max_turns": 84,
           "error_rate": 0.0
         }
       },
       "reason": "",
-      "seconds": 2.01
+      "seconds": 1.58
     },
     {
       "name": "s3_balance",
@@ -61,49 +61,140 @@
       "metrics": {
         "p2": {
           "seat_win_rates": [
-            0.47,
-            0.53
+            0.503,
+            0.497
           ],
           "draw_rate": 0.0
         },
         "p3": {
           "seat_win_rates": [
-            0.393,
-            0.323,
-            0.283
+            0.313,
+            0.32,
+            0.367
           ],
           "draw_rate": 0.0
         },
         "p4": {
           "seat_win_rates": [
-            0.273,
-            0.203,
-            0.273,
-            0.25
+            0.26,
+            0.27,
+            0.217,
+            0.253
           ],
           "draw_rate": 0.0
         }
       },
       "reason": "",
-      "seconds": 10.251
+      "seconds": 7.988
     },
     {
       "name": "s4_skill",
-      "passed": false,
+      "passed": true,
       "metrics": {
         "p2": {
-          "greedy_win_rate": 0.617,
+          "greedy_win_rate": 0.767,
+          "dominance": 0.533,
           "mcts_win_rate": 1.0
         },
         "p3": {
-          "greedy_win_rate": 0.592
+          "greedy_win_rate": 0.758,
+          "dominance": 0.637
         },
         "p4": {
-          "greedy_win_rate": 0.342
-        }
+          "greedy_win_rate": 0.717,
+          "dominance": 0.622
+        },
+        "skill_dominance": 0.598
       },
-      "reason": "n=4: greedy win rate 0.34 <= 0.35 (no skill)",
-      "seconds": 24.979
+      "reason": "",
+      "seconds": 20.164
+    },
+    {
+      "name": "s5_decisions",
+      "passed": true,
+      "metrics": {
+        "mean_legal_actions": 3.7,
+        "forced_share": 0.0,
+        "turns_sampled": 5670
+      },
+      "reason": "",
+      "seconds": 0.002
+    },
+    {
+      "name": "s6_length",
+      "passed": true,
+      "metrics": {
+        "minutes_per_turn": 0.289,
+        "p2": {
+          "mean_turns": 42,
+          "est_minutes": 12.1
+        },
+        "p3": {
+          "mean_turns": 63,
+          "est_minutes": 18.2
+        },
+        "p4": {
+          "mean_turns": 84,
+          "est_minutes": 24.3
+        },
+        "est_minutes_range": [
+          12.1,
+          24.3
+        ]
+      },
+      "reason": "",
+      "seconds": 0.001
+    },
+    {
+      "name": "s7_novelty",
+      "passed": true,
+      "metrics": {
+        "fingerprint": [
+          "dice:0",
+          "full_deck:True",
+          "gm:False",
+          "hidden:True",
+          "jokers:0",
+          "mech:catch-up",
+          "mech:drafting",
+          "mech:hand-management",
+          "mech:hidden-information",
+          "mech:pattern-building",
+          "mech:tableau-building",
+          "mech:variable-turn-order",
+          "order:variable"
+        ],
+        "nearest": "switchback",
+        "similarity": 0.471
+      },
+      "reason": "",
+      "seconds": 0.006
+    },
+    {
+      "name": "s8_tension",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "lead_changes": 2.667,
+          "decided_at": 0.405,
+          "comeback": 0.083
+        },
+        "p3": {
+          "lead_changes": 4.917,
+          "decided_at": 0.64,
+          "comeback": 0.417
+        },
+        "p4": {
+          "lead_changes": 6.083,
+          "decided_at": 0.751,
+          "comeback": 0.583
+        },
+        "mean_lead_changes": 4.56,
+        "mean_decided_at": 0.599,
+        "mean_comeback_rate": 0.361
+      },
+      "reason": "",
+      "seconds": 2.503
     }
   ]
 }

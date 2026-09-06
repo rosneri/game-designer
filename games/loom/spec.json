@@ -1,7 +1,7 @@
 {
   "slug": "loom",
   "name": "Loom",
-  "tagline": "Weave a 3x3 grid of drafted cards; every row, column and diagonal is a poker thread.",
+  "tagline": "Seven cards, nine cells: close a poker thread and it pays at once, but the leader drafts last.",
   "players_min": 2,
   "players_max": 4,
   "components": {
@@ -15,13 +15,15 @@
     "pattern-building",
     "tableau-building",
     "hand-management",
-    "hidden-information"
+    "hidden-information",
+    "variable-turn-order",
+    "catch-up"
   ],
-  "core_loop": "Each round a shared market of P+1 face-up cards is revealed; in clockwise order every player takes a turn of three decisions: draw one market card, announce whether they will weave that drawn card face-up or bury their hidden hand card face-down, then place the chosen card in an empty cell of their 3x3 weave.",
-  "win_condition": "After 9 rounds every grid is full and all face-down cards are revealed; score the 8 threads (3 rows, 3 columns, 2 diagonals) as mini poker hands and the highest total wins.",
+  "core_loop": "Each round a shared market of P+1 face-up cards is revealed and the draft order is recomputed with the lowest banked score first; on their turn a player draws one market card, announces whether they weave that drawn card face-up or bury their hidden hand card face-down, and places it in an empty cell of their 3x3 weave, banking at once any row, column or diagonal that this completes.",
+  "win_condition": "The loom is cut after 7 rounds, so two cells of every 3x3 grid stay bare and threads through them score nothing; the highest banked total from completed threads wins.",
   "est_minutes": [
-    10,
-    20
+    12,
+    23
   ],
   "gm": {
     "enabled": false,
@@ -29,5 +31,5 @@
     "decisions": []
   },
   "hidden_information": true,
-  "turn_order": "clockwise"
+  "turn_order": "variable"
 }
