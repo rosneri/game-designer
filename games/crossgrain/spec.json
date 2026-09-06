@@ -1,7 +1,7 @@
 {
   "slug": "crossgrain",
   "name": "Crossgrain",
-  "tagline": "Trick-taking where the suit you must follow can swing mid-trick.",
+  "tagline": "Trick-taking where the suit you must follow swings mid-trick, and everyone secretly farms one suit.",
   "players_min": 2,
   "players_max": 4,
   "components": {
@@ -13,14 +13,16 @@
   "mechanics": [
     "trick-taking",
     "hand-management",
+    "hidden-role",
+    "set-collection",
     "end-game-bonuses",
     "card-game"
   ],
-  "core_loop": "Follow the current suit or cut by matching the previous card's rank to swing the suit; the highest live card holds the 1-point grain token, and when the trick closes its holder wins and scores one more point per extra live card.",
-  "win_condition": "Most points after the fixed number of hands (trick points plus a 3-point most-tricks bonus each hand); ties broken by tricks won, then most recent trick won, then lowest seat.",
+  "core_loop": "Secretly pledge a grain suit, then follow the current suit or cut by matching the previous card's rank to swing it; the highest live card holds the 2-point grain token, and the trick winner harvests every live card at once for double value in their own pledged suit.",
+  "win_condition": "Most points after one deal (two with 4 players): token and width points, harvested card values doubled in your pledged suit, a 3-point most-tricks bonus, a 3-point sheaf bonus for an honour of your suit and -2 blight for none; ties broken by tricks, then most recent trick, then lowest seat.",
   "est_minutes": [
-    20,
-    35
+    15,
+    30
   ],
   "gm": {
     "enabled": false,

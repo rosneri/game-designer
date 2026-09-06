@@ -1,8 +1,8 @@
 {
-  "game_dir": "/Users/neri/Developer/game-designer/runs/20260905-181143-c1/idea07/workspace/games/crossgrain",
+  "game_dir": "/Users/neri/Developer/game-designer/runs/it-crossgrain-1/crossgrain/workspace/games/crossgrain",
   "passed": true,
   "failed_stage": null,
-  "seconds": 17.32,
+  "seconds": 8.34,
   "stages": [
     {
       "name": "s0_schema",
@@ -17,7 +17,7 @@
         "dice": 0
       },
       "reason": "",
-      "seconds": 0.001
+      "seconds": 0.0
     },
     {
       "name": "s1_import",
@@ -30,30 +30,30 @@
         ]
       },
       "reason": "",
-      "seconds": 0.003
+      "seconds": 0.001
     },
     {
       "name": "s2_playable",
       "passed": true,
       "metrics": {
         "p2": {
-          "mean_turns": 104,
-          "max_turns": 104,
+          "mean_turns": 54,
+          "max_turns": 54,
           "error_rate": 0.0
         },
         "p3": {
-          "mean_turns": 156,
-          "max_turns": 156,
+          "mean_turns": 54,
+          "max_turns": 54,
           "error_rate": 0.0
         },
         "p4": {
-          "mean_turns": 208,
-          "max_turns": 208,
+          "mean_turns": 112,
+          "max_turns": 112,
           "error_rate": 0.0
         }
       },
       "reason": "",
-      "seconds": 0.847
+      "seconds": 0.296
     },
     {
       "name": "s3_balance",
@@ -61,31 +61,31 @@
       "metrics": {
         "p2": {
           "seat_win_rates": [
-            0.497,
-            0.503
+            0.547,
+            0.453
           ],
-          "draw_rate": 0.027
+          "draw_rate": 0.007
         },
         "p3": {
           "seat_win_rates": [
-            0.318,
-            0.312,
-            0.37
+            0.392,
+            0.332,
+            0.277
           ],
-          "draw_rate": 0.023
+          "draw_rate": 0.013
         },
         "p4": {
           "seat_win_rates": [
-            0.312,
-            0.223,
-            0.227,
-            0.238
+            0.267,
+            0.208,
+            0.273,
+            0.252
           ],
-          "draw_rate": 0.05
+          "draw_rate": 0.013
         }
       },
       "reason": "",
-      "seconds": 4.312
+      "seconds": 1.595
     },
     {
       "name": "s4_skill",
@@ -93,53 +93,57 @@
       "metrics": {
         "p2": {
           "greedy_win_rate": 0.725,
-          "mcts_win_rate": 0.667
+          "dominance": 0.45,
+          "mcts_win_rate": 0.833
         },
         "p3": {
-          "greedy_win_rate": 0.588
+          "greedy_win_rate": 0.517,
+          "dominance": 0.275
         },
         "p4": {
-          "greedy_win_rate": 0.532
-        }
+          "greedy_win_rate": 0.479,
+          "dominance": 0.306
+        },
+        "skill_dominance": 0.344
       },
       "reason": "",
-      "seconds": 12.146
+      "seconds": 5.776
     },
     {
       "name": "s5_decisions",
       "passed": true,
       "metrics": {
-        "mean_legal_actions": 4.15,
-        "forced_share": 0.208,
-        "turns_sampled": 14040
+        "mean_legal_actions": 5.33,
+        "forced_share": 0.169,
+        "turns_sampled": 6600
       },
       "reason": "",
-      "seconds": 0.003
+      "seconds": 0.001
     },
     {
       "name": "s6_length",
       "passed": true,
       "metrics": {
-        "minutes_per_turn": 0.305,
+        "minutes_per_turn": 0.341,
         "p2": {
-          "mean_turns": 104,
-          "est_minutes": 31.8
+          "mean_turns": 54,
+          "est_minutes": 18.4
         },
         "p3": {
-          "mean_turns": 156,
-          "est_minutes": 47.6
+          "mean_turns": 54,
+          "est_minutes": 18.4
         },
         "p4": {
-          "mean_turns": 208,
-          "est_minutes": 63.5
+          "mean_turns": 112,
+          "est_minutes": 38.2
         },
         "est_minutes_range": [
-          31.8,
-          63.5
+          18.4,
+          38.2
         ]
       },
       "reason": "",
-      "seconds": 0.002
+      "seconds": 0.001
     },
     {
       "name": "s7_novelty",
@@ -154,14 +158,42 @@
           "mech:card-game",
           "mech:end-game-bonuses",
           "mech:hand-management",
+          "mech:hidden-role",
+          "mech:set-collection",
           "mech:trick-taking",
           "order:clockwise"
         ],
-        "nearest": "sidestep",
-        "similarity": 0.538
+        "nearest": "ossuary",
+        "similarity": 0.571
       },
       "reason": "",
       "seconds": 0.005
+    },
+    {
+      "name": "s8_tension",
+      "passed": true,
+      "metrics": {
+        "p2": {
+          "lead_changes": 3.833,
+          "decided_at": 0.404,
+          "comeback": 0.167
+        },
+        "p3": {
+          "lead_changes": 9.0,
+          "decided_at": 0.437,
+          "comeback": 0.0
+        },
+        "p4": {
+          "lead_changes": 9.917,
+          "decided_at": 0.583,
+          "comeback": 0.25
+        },
+        "mean_lead_changes": 7.58,
+        "mean_decided_at": 0.475,
+        "mean_comeback_rate": 0.139
+      },
+      "reason": "",
+      "seconds": 0.665
     }
   ]
 }
