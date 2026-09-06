@@ -175,7 +175,8 @@ def iterate_game(cfg: GeneratorConfig, slug: str, run_dir: Path, rounds: int, ll
 
         j = _judge_now(ctx, f"r{n}")
         rnd.total = j.total if j else None
-        if j and res.best is not None and j.total > res.best:
+        # beat the incumbent by a margin, not by a point: repeat judgings of one unchanged game vary by ~2
+        if j and res.best is not None and j.total >= res.best + cfg.min_improvement:
             res.best, rnd.kept, verdict = j.total, True, j
             _snapshot_game(game_dir, best_dir)
             best_metrics = ctx.result.gauntlet

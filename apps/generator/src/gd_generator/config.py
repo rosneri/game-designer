@@ -82,6 +82,9 @@ class GeneratorConfig(BaseModel):
     min_judge_total: int = 15
     trace_seeds: int = 1             # transcripts shown to the judge, per player count sampled
     iterate_rounds: int = 2          # design passes per game in `generator iterate`
+    # A redesign must beat the version it replaces by this much to be kept. Judging the same unchanged game
+    # four times gave 18, 17, 17, 16, so a +1 win is noise and a margin of 2 is the smallest honest bar.
+    min_improvement: int = 2
     iterate_top: int = 3             # how many of the best games a flywheel cycle iterates
     promote: bool = True             # copy survivors into the catalog (games/) at the end of the run
     reference_game: str = "reference-war-plus"

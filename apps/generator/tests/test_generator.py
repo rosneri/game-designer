@@ -678,6 +678,18 @@ def test_iterate_keeps_a_better_redesign(cfg, tmp_path, monkeypatch):
     assert (cfg.catalog_dir / slug / "gauntlet.json").exists()
 
 
+def test_iterate_requires_a_margin_not_a_point(cfg, tmp_path, monkeypatch):
+    """Judging one unchanged game repeatedly varied by 2 points, so +1 is not evidence of improvement."""
+    slug = _catalog_with_scores(cfg, tmp_path)
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,5")          # baseline 22, redesign 23: +1
+    (r,) = iterate(cfg, tmp_path / "iter", [slug], rounds=1)
+    assert r.rounds[0].total == 23 and not r.rounds[0].kept and not r.promoted
+    monkeypatch.setenv("GD_FAKE_JUDGE_SEQ", "4,6")          # +2 clears the margin
+    monkeypatch.setenv("GD_FAKE_STATE", str(tmp_path / "state2"))   # fresh judge counter
+    (r,) = iterate(cfg.model_copy(update={"min_improvement": 2}), tmp_path / "iter2", [slug], rounds=1)
+    assert r.rounds[0].kept and r.best == 24 and r.promoted
+
+
 def test_iterate_discards_a_worse_redesign(cfg, tmp_path, monkeypatch):
     slug = _catalog_with_scores(cfg, tmp_path)
     before = (cfg.catalog_dir / slug / "rules.py").read_text()

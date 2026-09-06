@@ -108,7 +108,8 @@ fired once in 29 games.
 Generation produces first drafts, and the judge has called every one of them "iterate". `generator iterate`
 runs that second pass: it shows the model the rulesheet, the metrics and a transcript of real play, asks for
 one substantial design change aimed at the weakest dimension, then re-measures and **keeps the new version only
-if it scores higher**. Each round runs in its own workspace, so a failed attempt never touches the catalog, and
+if it beats the old one by `min_improvement`**. The margin matters: judging one unchanged game four times gave
+18, 17, 17 and 16, so a one-point win is noise, not evidence. Each round runs in its own workspace, so a failed attempt never touches the catalog, and
 the version that wins at the end may be the one it started with.
 
 ```bash
